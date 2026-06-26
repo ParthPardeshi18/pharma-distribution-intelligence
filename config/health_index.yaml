@@ -1,0 +1,21 @@
+# Business Health Index (0-100) — configurable component weights.
+#
+# BHI = Σ(component_score × weight) / Σ(weight), where each component_score is the
+# 0-100 health score of the named KPI (scored against its registry thresholds).
+# Edit weights freely; they are renormalised, so they need not sum to 1.
+#
+# Each component maps to a KPI in src/di/kpis.py (single source of truth for the
+# thresholds that produce the score).
+
+components:
+  revenue_growth:         {kpi: revenue_growth_pct,        weight: 0.18}
+  profitability:          {kpi: gross_margin_pct,          weight: 0.18}
+  working_capital:        {kpi: ccc_days,                  weight: 0.14}
+  inventory_efficiency:   {kpi: inventory_turnover,        weight: 0.12}
+  collections:            {kpi: debtor_days,               weight: 0.10}
+  customer_concentration: {kpi: top10_customer_share_pct,  weight: 0.10}
+  supplier_dependency:    {kpi: top5_supplier_share_pct,   weight: 0.10}
+  cash_flow:              {kpi: operating_cash_margin_pct,  weight: 0.08}
+
+# Grade bands for the composite index (informational; grade() in base.py).
+# A 90+ · B 80+ · C 70+ · D 60+ · E 50+ · F <50

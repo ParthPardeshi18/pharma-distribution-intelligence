@@ -28,6 +28,9 @@ dashboards/internal/
 reports/data_validation.md
 reports/warehouse_statistics.md
 reports/data_quality_dashboard.html
+reports/decision_intelligence.md
+reports/decision_intelligence.json
+outputs/charts/
 logs/
 
 # Data file types — belt-and-braces, catches stray files anywhere

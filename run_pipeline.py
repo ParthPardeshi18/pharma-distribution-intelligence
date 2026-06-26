@@ -68,10 +68,17 @@ def main() -> int:
     print(f"      {stats.generate(res)}")
 
     # Stage 5 — data quality dashboard
-    print("[5/5] Generating data quality dashboard ...")
+    print("[5/6] Generating data quality dashboard ...")
     html, csv = quality.generate()
     print(f"      {html}")
     print(f"      {csv}")
+
+    # Stage 6 — decision intelligence
+    print("[6/6] Generating decision intelligence (analysis, insights, BHI) ...")
+    from src.di import run as di_run
+    di = di_run.generate()
+    print(f"      Business Health Index: {di['bhi']}/100 ({di['grade']})")
+    print(f"      {di['md']}")
 
     print("\n" + "=" * 64)
     print(f" DONE in {time.time() - t0:.1f}s")

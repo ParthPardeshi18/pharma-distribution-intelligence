@@ -14,8 +14,8 @@ Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
 
 - ✅ **Phase 0 — Discovery, setup & PII protection**
 - ✅ **Phase 1 — Data model & relationship mapping** (ERP Adapter, ERD, star schema)
-- ✅ **Phase 2 — Cleaning, validation & warehouse build** *(under review)*
-- ⬜ Phase 3 — Multi-dimensional analysis
+- ✅ **Phase 2 — Cleaning, validation & warehouse build**
+- ✅ **Phase 3 — Decision Intelligence layer** (KPIs, insights, risks, opportunities, recommendations, scorecards, Business Health Index) *(under review)*
 - ⬜ Phase 4 — Strategic analyses
 - ⬜ Phase 5 — Executive dashboard specifications
 - ⬜ Phase 6 — Business health report
@@ -46,10 +46,19 @@ python -m src.discovery            # profile raw exports -> docs/discovery_repor
 python -m src.anonymise --build    # build secure lookup data/secure/pii_lookup.csv
 python -m src.pii_audit --shareable  # gate before sharing
 
-# Phase 2 — build the warehouse end-to-end (build + validation + stats + DQ dashboard + docs)
+# Phase 2-3 — full pipeline: warehouse + validation + stats + DQ dashboard + decision intelligence
 python run_pipeline.py --mode internal  --currency INR
 python run_pipeline.py --mode shareable --currency GBP
+
+# Decision intelligence only (reuses the existing warehouse)
+python -m src.di.run        # -> reports/decision_intelligence.md + Business Health Index
 ```
+
+**Decision Intelligence** (`src/di/`) turns the warehouse into a system that
+*explains the business and recommends actions*: a central KPI registry
+(`src/di/kpis.py`), reusable engines (insight / root-cause / risk / opportunity /
+recommendation / scorecard), nine domain analyzers, and a configurable
+**Business Health Index** (`config/health_index.yaml`).
 
 Outputs: `data/warehouse/erp_warehouse.db`, `reports/data_validation.md`,
 `reports/warehouse_statistics.md`, `reports/data_quality_dashboard.html`,
