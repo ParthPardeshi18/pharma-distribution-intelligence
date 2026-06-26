@@ -1,0 +1,61 @@
+# Global column synonym map — RAW ERP header -> canonical snake_case name.
+# Lives in the ERP Adapter layer so the warehouse/analytics never see ERP names.
+# Matching is case-insensitive on the trimmed raw header. Per-report overrides
+# (config/report_specs.yaml -> columns:) take precedence over these globals.
+#
+# canonical_name: [list of raw header variants]
+
+synonyms:
+  # --- identities / dimensions ---
+  customer_name:   ["Customer name", "Cust name"]
+  supplier_name:   ["Supplier name"]
+  salesman_name:   ["Salesman name"]
+  product_name:    ["Product name", "Product", "Prod name"]
+  company_name:    ["Company name"]          # manufacturer (Company_Master)
+  area_name:       ["Area name"]
+  zone_name:       ["Zone name"]
+  address:         ["Address", "Short address"]
+  area:            ["Area"]
+  unit:            ["Unit"]
+
+  # --- identifiers (potential future stable keys) ---
+  voucher_no:      ["Vch no"]
+  bill_no:         ["Bill no"]
+  alias:           ["Alias"]
+  ie_code:         ["IE code"]
+  batch_no:        ["Batch no"]
+  tran_type:       ["Tran type"]
+
+  # --- dates ---
+  txn_date:        ["Date", "Vch date", "Bill dt", "Bill date"]
+  due_date:        ["Due dt"]
+  expiry_date:     ["ExpDt"]
+  month_label:     ["Month", "Month name"]
+
+  # --- contact (masked/anonymised downstream) ---
+  mobile:          ["Mobile", "Mobile no.", "Tel/Mobile"]
+  telephone:       ["Telephone"]
+  email:           ["Email ids"]
+
+  # --- common measures (unambiguous) ---
+  discount_pct:    ["Disc%"]
+  tax_pct:         ["Tax%"]
+  profit_pct:      ["Profit %"]
+  cost_amount:     ["Cost amt"]
+  profit_amount:   ["Profit amt"]
+  sale_billed_amount: ["Sale/Billed amt"]
+  quantity:        ["Qty"]
+  scheme_qty:      ["Scm qty"]
+  mrp:             ["MRP"]
+  ptr:             ["PTR"]
+  bill_amount:     ["Bill amt", "Tot bill amt"]
+  balance_amount:  ["Bal amt", "Tot bal amt"]
+  due_amount:      ["Tot due amt"]
+  overdue_days:    ["O/d"]
+
+  # --- ageing buckets ---
+  ageing_0_30:     ["OD days upto 30"]
+  ageing_31_60:    ["OD days upto 60"]
+  ageing_61_90:    ["OD days upto 90"]
+  ageing_91_120:   ["OD days upto 120"]
+  ageing_120_plus: ["OD days > 120"]

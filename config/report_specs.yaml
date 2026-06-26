@@ -1,0 +1,181 @@
+# Per-report specifications for the ERP Adapter.
+# key = "<Domain>/<ReportType>" (FY suffix stripped). The adapter resolves files
+# via source_glob, detects the header row, applies global synonyms
+# (column_mappings.yaml), then the per-report `columns:` overrides below
+# (override wins). Columns not mapped anywhere are snake_cased as a safe
+# fallback, so every report loads even if not fully specified here.
+#
+# role:  fact | dimension | aggregate | snapshot | event | statement
+# grain: one row represents ...
+# links: canonical dimensions this report can join to
+# id_candidates: columns that COULD become stable keys if the ERP exposes them
+#                later (the adapter auto-promotes them — see src/adapters/base.py)
+
+defaults:
+  fy_in_filename: true            # filenames carry _YY-YY financial year
+  drop_footer_totals: true        # strip embedded "Totals:" / balance rows
+
+reports:
+
+  # ───────────────────────── MASTERS (dimensions) ─────────────────────────
+  Masters/Customer_Master:
+    role: dimension
+    grain: one customer
+    columns: {TT: trade_type, SP: sp}
+    id_candidates: [alias, ie_code]
+  Masters/Supplier_Master:
+    role: dimension
+    grain: one supplier
+    id_candidates: [alias]
+  Masters/Salesman_Master:
+    role: dimension
+    grain: one salesman
+    columns: {AlwInSl: allow_in_sale}
+  Masters/Product_Master:
+    role: dimension
+    grain: one product
+    columns: {Com: company_name, Shelf: shelf, "Re-ord": reorder_level,
+              Refill: refill, DPCO: dpco, CL: cl, SS: ss}
+    id_candidates: [alias]
+  Masters/Company_Master:
+    role: dimension
+    grain: one manufacturer/company
+    columns: {Short: short_name, OR: opening_rcv, OP: opening_pay, CL: closing, SS: ss}
+  Masters/Area_List:
+    role: dimension
+    grain: one area (with its zone)
+  Masters/Zone_List:
+    role: dimension
+    grain: one area (with its zone)
+
+  # ───────────────────────── SALES ────────────────────────────────────────
+  Sales/Sales:
+    role: fact
+    grain: one sales bill (header)
+    columns: {Net: net_amount}
+    links: [customer, date, voucher]
+    notes: net_amount per invoice; join Profit_AllBills on voucher_no for cost/profit
+  Sales/Customer_Sales:
+    role: fact
+    grain: one sales voucher per customer
+    columns: {Amount: sale_amount}
+    links: [customer, date, voucher]
+  Sales/Sales_ProductWise:
+    role: fact
+    grain: one product per financial year (no customer/bill)
+    columns: {Com: company_name, "Scm value": scheme_value, "Tot SD": total_sd,
+              "Tot ID": total_id, "Tot amt": sale_amount}
+    links: [product]
+  Sales/Salesman_Sale:
+    role: fact
+    grain: one salesman per financial year
+    columns: {"Cash sale": cash_sale, "Ca/Cr sale": cash_credit_sale,
+              "Credit sale": credit_sale, "DC sale amt": dc_sale_amount,
+              "Total sale": total_sale, "Sale return": sale_return, "Net sale": net_sale}
+    links: [salesman]
+  Sales/Area_Sales:
+    role: aggregate
+    grain: one area per financial year
+    columns: {"No of customers": num_customers, "No of bills": num_bills,
+              "Sale amount": sale_amount}
+    links: [area]
+
+  # ───────────────────────── PURCHASES ────────────────────────────────────
+  Purchases/Purchase_Report:
+    role: fact
+    grain: one purchase bill (header)
+    columns: {Net: net_amount}
+    links: [supplier, date, voucher]
+  Purchases/Purchase_ProductDetails:
+    role: fact
+    grain: one product per financial year (no bill)
+    columns: {"Purc rate": purchase_rate, "Sale rate": sale_rate, Amount: purchase_amount}
+    links: [product]
+  Purchases/PTR_Changed_Purchase:
+    role: event
+    grain: one price-change line on a purchase voucher
+    columns: {Comp: company_name, "Prev PTR": prev_ptr, "New PTR": new_ptr,
+              "Prev MRP": prev_mrp, "New MRP": new_mrp,
+              "Prev Scm %": prev_scheme_pct, "New Scm %": new_scheme_pct}
+    links: [product, date, voucher]
+  Purchases/SupplierWise_Purchase:
+    role: aggregate
+    grain: one supplier per financial year
+    columns: {Amount: purchase_amount}
+    links: [supplier]
+  Purchases/Purchase_MonthWise:
+    role: aggregate
+    grain: one month per financial year
+    columns: {Amount: purchase_amount}
+
+  # ───────────────────────── STOCK ────────────────────────────────────────
+  Stock/ClosingStock:
+    role: snapshot
+    grain: one product batch at period end
+    columns: {Com: company_name, "Sale rate 2": sale_rate_2, "Sale rate 3": sale_rate_3}
+    links: [product]
+  Stock/Stock_ProductWise:
+    role: snapshot
+    grain: one product at period end
+    columns: {Company: company_name, Rate: rate, Value: value}
+    links: [product]
+  Stock/Stock_InOutSummary:
+    role: fact
+    grain: one company per financial year (stock movement)
+    columns: {Company: company_name, "Opening value": opening_value,
+              "Stock-in value": stock_in_value, "Stock-out value": stock_out_value,
+              "Closing value": closing_value}
+  Stock/Stock_CompanyWise:
+    role: aggregate
+    grain: one company at period end
+    columns: {Particulars: company_name, "No of products": num_products, Value: value}
+  Stock/Stock_CategoryWise:
+    role: aggregate
+    grain: one category at period end
+    columns: {Particulars: category_name, "No of products": num_products, Value: value}
+
+  # ───────────────────────── OUTSTANDING ──────────────────────────────────
+  Outstanding/Outstanding_BillWise:
+    role: fact
+    grain: one open receivable bill
+    links: [customer, date]
+  Outstanding/Outstanding_CustomerWise:
+    role: aggregate
+    grain: one customer (receivables)
+    columns: {"Party name": customer_name}
+    links: [customer, area]
+  Outstanding/Receivables_Ageing_CustomerWise:
+    role: fact
+    grain: one customer receivables ageing
+    links: [customer]
+  Outstanding/Payables_Ageing_BillWise:
+    role: fact
+    grain: one open payable bill
+    links: [supplier, date, voucher]
+  Outstanding/Payables_Ageing_SupplierWise:
+    role: fact
+    grain: one supplier payables ageing
+    links: [supplier]
+  Outstanding/Payables_SupplierWise:
+    role: aggregate
+    grain: one supplier (payables)
+    columns: {"Party name": supplier_name}
+    links: [supplier, area]
+
+  # ───────────────────────── PROFIT ───────────────────────────────────────
+  Profit/Profit_AllBills:
+    role: fact
+    grain: one sales bill (cost & profit)
+    links: [customer, date, voucher]
+    notes: merges into fact_sales on voucher_no
+  Profit/Profit_ProductWise:
+    role: fact
+    grain: one product per financial year (profitability)
+    columns: {Comp: company_name}
+    links: [product]
+  Profit/Profit_MonthlySummary:
+    role: aggregate
+    grain: one month per financial year
+  Profit/P_and_L:
+    role: statement
+    grain: trading & P&L statement lines (T-format, special handling)
