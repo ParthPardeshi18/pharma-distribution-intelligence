@@ -1,0 +1,60 @@
+# ERP Business Intelligence & Decision-Support System
+
+A production-quality BI and decision-support system for **a mid-size
+pharmaceutical distribution firm in India**, built from ERP exports. One codebase
+produces two outputs: an **internal** decision tool on real data and a
+**shareable**, fully anonymised portfolio version.
+
+> ⚠️ **Real company data with sensitive PII.** Read [SECURITY.md](SECURITY.md)
+> before doing anything. No raw, processed, or warehouse data is ever committed.
+
+## Status
+
+Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
+
+- ✅ **Phase 0 — Discovery, setup & PII protection** *(under review)*
+- ⬜ Phase 1 — Data model & relationship mapping
+- ⬜ Phase 2 — Cleaning, validation & warehouse build
+- ⬜ Phase 3 — Multi-dimensional analysis
+- ⬜ Phase 4 — Strategic analyses
+- ⬜ Phase 5 — Executive dashboard specifications
+- ⬜ Phase 6 — Business health report
+- ⬜ Phase 7 — Roadmap & AI enhancement plan
+
+## Architecture (key decisions)
+
+- **Raw is immutable.** Exports copied to `data/raw/` (read-only); all cleaning emits new files; every step reconciles totals against raw.
+- **Config over code.** Column mappings, report specs, anonymisation, and currency live in `config/*.yaml`.
+- **PII-first.** Anonymisation (`src/anonymise.py`) + audit (`src/pii_audit.py`) are the foundation.
+- **Star-schema warehouse** in SQLite (`data/warehouse/erp_warehouse.db`).
+- **INR is the source of truth**; a configurable reporting-currency layer converts at presentation time (INR/GBP/EUR/USD …). Analytics are currency-agnostic.
+- **Dual-mode:** `run_pipeline.py --mode {internal|shareable} --currency {INR|…}`.
+
+## Setup
+
+```bash
+python -m venv venv
+venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+```
+
+## Usage (Phase 0)
+
+```bash
+python -m src.discovery        # profile raw exports -> docs/discovery_report.md (PII masked)
+python -m src.anonymise --build  # build secure lookup data/secure/pii_lookup.csv
+python -m src.pii_audit --shareable  # gate before sharing
+```
+
+## Repository layout
+
+```
+src/        pipeline modules (utils, discovery, anonymise, pii_audit, …)
+config/     YAML config (column_mappings, report_specs, anonymisation, currency)
+data/       raw / processed / warehouse / secure / reference   (ALL gitignored)
+analysis/   per-domain analysis scripts
+reports/    internal (gitignored) + shareable
+dashboards/ internal (gitignored) + shareable  (Power BI specs)
+docs/       discovery report, data model, schema, data dictionary
+tests/      pytest suite
+```

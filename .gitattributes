@@ -1,0 +1,9 @@
+# Normalize line endings: store LF in the repo, check out native on each OS.
+* text=auto eol=lf
+
+# Treat data/binary types as binary (never committed anyway, but explicit).
+*.xlsx binary
+*.xls  binary
+*.db   binary
+*.pbix binary
+*.png  binary

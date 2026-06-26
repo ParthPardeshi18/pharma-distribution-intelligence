@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════════════════════
+# DATA SECURITY — NEVER commit raw, processed, warehouse, or PII data.
+# Verify with `git status` before EVERY commit. This is non-negotiable.
+# ═══════════════════════════════════════════════════════════
+
+# Pipeline data folders (all gitignored)
+data/raw/
+data/processed/
+data/warehouse/
+data/secure/
+data/reference/
+
+# Original ERP export folders at repo root (raw PII)
+Masters/
+Sales/
+Purchases/
+Stock/
+Outstanding/
+Profit/
+01_Raw_Data/
+
+# Internal (real-data) outputs — never shared
+reports/internal/
+dashboards/internal/
+
+# Data file types — belt-and-braces, catches stray files anywhere
+*.csv
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sqlite3
+*.pbix
+
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Tooling
+.claude/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

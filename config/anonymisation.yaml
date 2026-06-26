@@ -1,0 +1,49 @@
+# Anonymisation configuration
+# Drives src/anonymise.py. Names → stable anonymous codes; other PII → masked.
+#
+# entity_types: free-text identities replaced by stable codes (Customer_0001 …).
+#   Each lists the column-name fragments (lowercased substring match) that hold
+#   that entity's name, across ANY report.
+# pii_mask: columns that are masked (not coded) in shareable output.
+# keep_plain: explicitly NOT sensitive (pharma product/company names, units) —
+#   never anonymised, safe to share.
+
+entity_types:
+  customer:
+    code_prefix: "Customer"
+    column_hints: ["customer name", "cust name"]
+  supplier:
+    code_prefix: "Supplier"
+    column_hints: ["supplier name", "supplier"]
+  salesman:
+    code_prefix: "Salesman"
+    column_hints: ["salesman", "sales man", "rep name"]
+
+pii_mask:
+  mobile:   ["mobile", "telephone", "phone", "contact"]
+  email:    ["email", "e-mail"]
+  address:  ["address", "addr"]
+  id:       ["alias", "ie code", "gst", "pan", "tin", "bill no", "invoice"]
+
+keep_plain:
+  - "product name"
+  - "company"
+  - "com"
+  - "category"
+  - "unit"
+
+# Code numbering width (Customer_0001). Stable & append-only: existing codes are
+# never renumbered when new identities appear in future ERP exports.
+code_width: 4
+
+# Firm identity for the SHAREABLE version (real name never appears publicly).
+firm_placeholder: "a mid-size pharmaceutical distribution firm in India"
+
+# Audit allowlist: the OWNER's own identity is theirs to disclose (author
+# attribution, GitHub handle). These are skipped by the identity check in
+# src/pii_audit.py. THIRD-PARTY names (customers/suppliers/other salesmen) are
+# never allowlisted. Mobile/email pattern checks remain strict regardless.
+audit_allowlist:
+  - "Parth"
+  - "Parth Pardeshi"
+  - "ParthPardeshi18"
