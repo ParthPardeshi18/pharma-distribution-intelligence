@@ -12,9 +12,9 @@ produces two outputs: an **internal** decision tool on real data and a
 
 Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
 
-- ✅ **Phase 0 — Discovery, setup & PII protection** *(under review)*
-- ⬜ Phase 1 — Data model & relationship mapping
-- ⬜ Phase 2 — Cleaning, validation & warehouse build
+- ✅ **Phase 0 — Discovery, setup & PII protection**
+- ✅ **Phase 1 — Data model & relationship mapping** (ERP Adapter, ERD, star schema)
+- ✅ **Phase 2 — Cleaning, validation & warehouse build** *(under review)*
 - ⬜ Phase 3 — Multi-dimensional analysis
 - ⬜ Phase 4 — Strategic analyses
 - ⬜ Phase 5 — Executive dashboard specifications
@@ -38,13 +38,23 @@ venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 ```
 
-## Usage (Phase 0)
+## Usage
 
 ```bash
-python -m src.discovery        # profile raw exports -> docs/discovery_report.md (PII masked)
-python -m src.anonymise --build  # build secure lookup data/secure/pii_lookup.csv
+# Phase 0 — discovery & PII
+python -m src.discovery            # profile raw exports -> docs/discovery_report.md (PII masked)
+python -m src.anonymise --build    # build secure lookup data/secure/pii_lookup.csv
 python -m src.pii_audit --shareable  # gate before sharing
+
+# Phase 2 — build the warehouse end-to-end (build + validation + stats + DQ dashboard + docs)
+python run_pipeline.py --mode internal  --currency INR
+python run_pipeline.py --mode shareable --currency GBP
 ```
+
+Outputs: `data/warehouse/erp_warehouse.db`, `reports/data_validation.md`,
+`reports/warehouse_statistics.md`, `reports/data_quality_dashboard.html`,
+`docs/data_dictionary.md`, `docs/business_metadata_catalog.md`. See
+[docs/warehouse_maintenance.md](docs/warehouse_maintenance.md).
 
 ## Repository layout
 

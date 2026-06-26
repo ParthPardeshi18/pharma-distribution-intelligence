@@ -23,6 +23,13 @@ Profit/
 reports/internal/
 dashboards/internal/
 
+# Generated build artifacts containing REAL aggregate financials (reproducible
+# via run_pipeline.py). Shareable/anonymised versions come from --mode shareable.
+reports/data_validation.md
+reports/warehouse_statistics.md
+reports/data_quality_dashboard.html
+logs/
+
 # Data file types — belt-and-braces, catches stray files anywhere
 *.csv
 *.xlsx

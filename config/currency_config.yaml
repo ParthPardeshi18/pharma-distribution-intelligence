@@ -1,0 +1,26 @@
+# Multi-currency reporting configuration.
+# INR is the IMMUTABLE source of truth in the warehouse. Conversion happens ONLY
+# in the reporting/presentation layer (src/currency.py), never in stored data.
+
+base_currency: INR
+
+# Currencies the reporting layer may convert to.
+supported_currencies: [INR, USD, EUR, GBP, AED]
+
+display:
+  INR: {symbol: "₹", name: "Indian Rupee", decimals: 0}
+  USD: {symbol: "$", name: "US Dollar", decimals: 2}
+  EUR: {symbol: "€", name: "Euro", decimals: 2}
+  GBP: {symbol: "£", name: "Pound Sterling", decimals: 2}
+  AED: {symbol: "د.إ", name: "UAE Dirham", decimals: 2}
+
+# Rate lookup strategy:
+#  - "fy_average": use the financial-year average rate (good for annual reporting)
+#  - "as_of": use the rate effective on/just before the transaction date
+rate_strategy: fy_average
+
+# Rates live in data/reference/exchange_rates.csv (gitignored with data/).
+rates_path: data/reference/exchange_rates.csv
+
+# If a rate is missing, FAIL LOUDLY rather than silently using 1.0.
+on_missing_rate: error        # error | warn

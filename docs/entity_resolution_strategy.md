@@ -18,6 +18,12 @@ Measured reality (all FYs vs masters):
 So entity resolution is, in practice, a **customer-only** problem. Suppliers and
 products resolve by exact normalized name today.
 
+> **By VALUE, customer resolution is ~99.5%** (exact + route-marker-normalized +
+> fuzzy). The 32%-by-count figure is a long tail of tiny/one-off customers; the
+> high-value customers nearly all match the master. (An earlier apparent "50%
+> unresolved by value" was a footer-row artifact — a `Totals:` row parsed as a
+> customer named NaN — fixed in the adapter; see data_model.md §3.)
+
 ## The surrogate key — three-tier precedence
 
 Every dimension row gets one immutable `*_key`. How it is derived, in priority

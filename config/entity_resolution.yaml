@@ -1,0 +1,28 @@
+# Entity resolution configuration (src/entity_resolution.py).
+# Conservative by design: a wrong merge is worse than an unresolved record.
+
+# Confidence thresholds (0–100, rapidfuzz token_set_ratio).
+auto_accept: 92      # >= this AND unambiguous  -> auto-match (tier master_fuzzy)
+review_floor: 82     # [review_floor, auto_accept) -> review queue (treated unresolved)
+# < review_floor -> unresolved surrogate (own stable key)
+
+# Ambiguity guard: if the 2nd-best candidate is within this margin of the best,
+# the match is ambiguous -> never auto-accept, send to review.
+ambiguity_margin: 4
+
+# Strip isolated single-letter tokens that are route/zone markers
+# (e.g. "VEDANTA (A) MEDICAL" -> "VEDANTA MEDICAL"). Improves match rate.
+strip_route_markers: true
+
+# Per-entity settings. Suppliers/products match ~100% exact, so fuzzy is mainly
+# a safety net there; customers rely on it.
+entities:
+  customer:
+    master_report: Masters/Customer_Master
+    master_name_col: customer_name
+  supplier:
+    master_report: Masters/Supplier_Master
+    master_name_col: supplier_name
+  product:
+    master_report: Masters/Product_Master
+    master_name_col: product_name

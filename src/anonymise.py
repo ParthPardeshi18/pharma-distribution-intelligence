@@ -152,6 +152,15 @@ def build_lookup(print_sample: bool = True) -> pd.DataFrame:
     return lookup
 
 
+def load_code_map(entity_type: str) -> dict[str, str]:
+    """norm_key -> anon_code for one entity type (from the secure lookup).
+    Used by the warehouse to assign anonymous dimension codes (customer/supplier/
+    salesman). Products/companies/areas are not PII and keep real names."""
+    lookup = load_lookup()
+    sub = lookup[lookup.entity_type == entity_type]
+    return dict(zip(sub.norm_key, sub.anon_code))
+
+
 def _build_maps(cfg: dict) -> dict[str, dict[str, str]]:
     lookup = load_lookup()
     maps: dict[str, dict[str, str]] = {}

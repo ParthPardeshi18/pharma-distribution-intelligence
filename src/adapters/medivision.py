@@ -1,4 +1,4 @@
-"""Concrete ERP adapter for the firm's ERP (Marg/Busy-style Excel exports).
+"""Concrete ERP adapter for the firm's ERP: MediVision Platinum (Excel exports).
 
 Responsibilities (all ERP-specific logic is confined here):
 - discover report files and their financial year from filenames
@@ -23,6 +23,18 @@ _FY_RE = re.compile(r"_(\d\d-\d\d)\.xlsx$", re.IGNORECASE)
 # Footer/summary rows the ERP embeds inside the data area.
 _FOOTER_TOKENS = {"total", "totals", "grand total", "sub total", "subtotal",
                   "opening balance", "closing balance", "opening", "closing"}
+# Provenance / pagination lines the ERP appends (e.g.
+# "Generated at 2026-06-09 ... by PARTH using MediVision Platinum").
+_PROVENANCE_RE = re.compile(r"generated at|medivision|platinum|^page\s*\d", re.IGNORECASE)
+
+
+def _cell_is_footer(value) -> bool:
+    if value is None:
+        return False
+    s = str(value).strip().lower().rstrip(":").strip()
+    if not s:
+        return False
+    return s in _FOOTER_TOKENS or bool(_PROVENANCE_RE.search(s))
 _DATE_CANON = {"txn_date", "due_date", "expiry_date"}
 _NUMERIC_HINTS = ("amount", "amt", "value", "qty", "rate", "pct", "ptr", "mrp",
                   "balance", "ageing", "sale", "cost", "profit", "days",
@@ -34,8 +46,8 @@ def _snake(name: str) -> str:
     return re.sub(r"_+", "_", s).strip("_") or "col"
 
 
-class MargAdapter(ERPAdapter):
-    name = "marg"
+class MediVisionAdapter(ERPAdapter):
+    name = "medivision"
 
     def __init__(self, raw_dir: Path = RAW_DIR, config_dir: Path = CONFIG_DIR):
         self.raw_dir = Path(raw_dir)
@@ -96,15 +108,17 @@ class MargAdapter(ERPAdapter):
         return df.rename(columns=rename), rename
 
     def _strip_footers(self, df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+        """Drop ERP footer/total/provenance rows. Scans EVERY column because the
+        'Totals:' label lands in different columns per report (e.g. the Address
+        column in Sales), and provenance lines land in the first column."""
         if not self._defaults.get("drop_footer_totals", True) or df.empty:
             return df, 0
-        # check the first text-ish column for footer tokens
-        text_cols = [c for c in df.columns
-                     if df[c].dtype == object][:1]
-        if not text_cols:
-            return df, 0
-        col = text_cols[0]
-        mask = df[col].astype(str).str.strip().str.lower().isin(_FOOTER_TOKENS)
+        # Scan EVERY column (dtype-agnostic): pandas 3.0 stores text as the new
+        # `str` dtype, not `object`, so a dtype filter would miss string columns.
+        # _cell_is_footer safely returns False for numbers/dates/NaN.
+        mask = pd.Series(False, index=df.index)
+        for c in df.columns:
+            mask |= df[c].map(_cell_is_footer).astype(bool)
         return df[~mask].reset_index(drop=True), int(mask.sum())
 
     @staticmethod
@@ -126,6 +140,22 @@ class MargAdapter(ERPAdapter):
                 found[report_key.split("/")[0].lower()] = cand
         return found
 
+    def _apply_grouping(self, df: pd.DataFrame, report_key: str) -> pd.DataFrame:
+        """Forward-fill grouped reports where an entity name appears once per
+        group, with blank cells / sub-header lines (e.g. 'Mob/tel:') on the
+        rows beneath it. Driven by ffill_columns / subheader_regex in the spec."""
+        spec = self._reports.get(report_key, {}) or {}
+        ffill = spec.get("ffill_columns") or []
+        sub = spec.get("subheader_regex")
+        for col in ffill:
+            if col not in df.columns:
+                continue
+            if sub:
+                mask = df[col].astype(str).str.match(sub, case=False, na=False)
+                df.loc[mask, col] = None
+            df[col] = df[col].ffill()
+        return df
+
     # ------------------------------------------------------------------ #
     def load(self, report_key: str, financial_year: str | None = None) -> CanonicalFrame:
         files = self._index().get(report_key)
@@ -140,6 +170,7 @@ class MargAdapter(ERPAdapter):
         df = read_erp_excel(path)
         df, _ = self._canon_columns(df, report_key)
         df, dropped = self._strip_footers(df)
+        df = self._apply_grouping(df, report_key)
         df = self._coerce_types(df)
 
         spec = self._reports.get(report_key, {}) or {}
@@ -156,6 +187,6 @@ class MargAdapter(ERPAdapter):
 
 
 @lru_cache(maxsize=1)
-def get_adapter() -> MargAdapter:
+def get_adapter() -> MediVisionAdapter:
     """Process-wide singleton adapter (the firm's ERP)."""
-    return MargAdapter()
+    return MediVisionAdapter()

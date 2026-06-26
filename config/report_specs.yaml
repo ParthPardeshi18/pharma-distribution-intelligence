@@ -139,6 +139,11 @@ reports:
     role: fact
     grain: one open receivable bill
     links: [customer, date]
+    # Grouped report: customer name appears once per group; subsequent bills have
+    # a blank customer cell or a "Mob/tel:" sub-header. Blank the sub-headers and
+    # forward-fill so every bill is attributed to its customer.
+    ffill_columns: [customer_name]
+    subheader_regex: "^Mob/tel:|^Phone:|^Tel:"
   Outstanding/Outstanding_CustomerWise:
     role: aggregate
     grain: one customer (receivables)

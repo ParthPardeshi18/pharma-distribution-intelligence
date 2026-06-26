@@ -42,15 +42,23 @@ ageing, stock) is fully supported.
 > The adapter + star schema are designed so this slots in as a new
 > `fact_sales_line` without disturbing anything else.
 
-## 3. Sale ↔ Profit voucher join (measured)
+## 3. Sale ↔ Profit voucher join (measured, post footer-strip)
 
-- `voucher_no` is **not globally unique** (repeats within/across FY). Join on the
-  **composite key `(financial_year, voucher_no)`** and de-duplicate in cleaning.
-- `Sales.net_amount` (FY25-26: ₹268.3M) **≠** `Profit.sale_billed_amount`
-  (₹279.2M). These are **different measures** — `net_amount` is net of
-  returns/schemes; `sale_billed_amount` is gross billed. `fact_sales` keeps both,
-  each from its source, and never conflates them. Cost & profit come from
-  `Profit_AllBills`.
+> **Data-integrity note (found in Phase 2):** every export ends with a `Totals:`
+> grand-total row + a `Generated at … using MediVision Platinum` provenance row.
+> Before these are stripped, totals **double**. The adapter now removes them
+> (`_strip_footers` scans all columns). All figures below are post-strip and
+> reconcile to the ERP's own `Totals` row to the rupee.
+
+- Join on the **composite key `(financial_year, voucher_no)`**. After footer
+  removal `voucher_no` is unique within a FY (FY25-26: 42,846 ⋈ 42,846 exact).
+- `Sales.net_amount` (FY25-26: **₹134.16M**, = ERP Totals exactly) **≠**
+  `Profit.sale_billed_amount` (**₹139.61M**). These are **different measures** —
+  `net_amount` is net of returns/schemes; `sale_billed_amount` is gross billed.
+  `fact_sales` keeps both, each from its source, never conflated. Cost & profit
+  (FY25-26 profit ₹7.19M ≈ 5.4%) come from `Profit_AllBills`.
+- **Corrected scale:** true all-FY (22-23→25-26) sales ≈ **₹530.5M** (early Phase-1
+  notes said ₹1.06B — that was 2× inflated by the footer rows).
 
 ## 4. Entity-Relationship Diagram (conceptual)
 
