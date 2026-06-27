@@ -58,6 +58,11 @@ logs/
 .env.*
 !.env.example
 
+# Streamlit app — secrets and real user credentials (never commit)
+.streamlit/secrets.toml
+config/app_users.yaml
+!config/app_users.example.yaml
+
 # Python
 venv/
 .venv/

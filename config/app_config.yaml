@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Streamlit application configuration (Pharmaceutical Distribution Intelligence
+# Platform — v1.1). This file is COMMITTED and contains no secrets. Real user
+# credentials live in the gitignored config/app_users.yaml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+app:
+  name: "Pharma Distribution Intelligence"
+  short_name: "PDI Platform"
+  version: "1.1.0"
+  # Default presentation mode for the report/anonymisation surfaces.
+  #   internal  → real firm name + real ₹ figures (gitignored data)
+  #   shareable → anonymised firm + figures (portfolio-safe)
+  mode: "internal"
+
+auth:
+  enabled: true
+  # Salt mixed into every password hash. OVERRIDE in production via
+  # .streamlit/secrets.toml  ([auth] salt = "…")  or env AUTH_SALT.
+  salt: "sukhakarta-v1.1"
+  session_timeout_minutes: 240
+  # Pages each role may open. The navigation gate reads this.
+  roles:
+    admin:    [overview, decision_intelligence, strategic, forecasting, geographic, reports, data_quality]
+    analyst:  [overview, decision_intelligence, strategic, forecasting, geographic, reports]
+    viewer:   [overview, decision_intelligence, strategic, geographic]
+
+currency:
+  default: "INR"
+  # Presentation currencies offered in the sidebar selector. INR is always the
+  # source of truth; conversion happens at display time only.
+  options: ["INR", "USD", "EUR", "GBP"]
+
+health_index:
+  # Default Business Health Index weight profile (see config/health_index.yaml).
+  # cash_preservation fits this cash-heavy, route-based distributor.
+  default_profile: "cash_preservation"
+
+ai_summary:
+  # The executive narrative surfaced in the app always comes from the local
+  # Decision Intelligence engine (no network, always available). An optional
+  # Claude enhancer can rewrite it into polished prose when enabled below.
+  enabled: false                 # off by default — opt-in
+  provider: "anthropic"
+  model: "claude-opus-4-8"
+  # API key resolves from ANTHROPIC_API_KEY or .streamlit/secrets.toml.
+  max_tokens: 1024

@@ -18,6 +18,7 @@ Money is always stored in INR; --currency only affects presentation/exports.
 from __future__ import annotations
 
 import argparse
+import os
 import time
 
 
@@ -29,6 +30,12 @@ def main() -> int:
     ap.add_argument("--skip-build", action="store_true",
                     help="reuse the existing warehouse; only regenerate reports/docs")
     args = ap.parse_args()
+
+    # Bind every stage to this mode's warehouse file. The builder writes
+    # erp_warehouse.db (internal) or erp_warehouse_shareable.db (shareable); this
+    # env makes the DI / strategic / geo / report / export stages read the SAME
+    # file so the whole run is internally consistent.
+    os.environ["ERP_WAREHOUSE_MODE"] = args.mode
 
     print("=" * 64)
     print(f" ERP BI PIPELINE  ·  mode={args.mode}  currency={args.currency}")

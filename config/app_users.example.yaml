@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# EXAMPLE user store for the Streamlit app. Copy this file to
+# config/app_users.yaml (which is gitignored) and replace the password hashes.
+#
+# Password hashes are sha256(  salt + ":" + password  ), where `salt` is the
+# value of  auth.salt  in config/app_config.yaml (override in production via
+# secrets/env). Generate a hash:
+#
+#   python -c "import hashlib; print(hashlib.sha256(('sukhakarta-v1.1:' + 'NEWPASS').encode()).hexdigest())"
+#
+# Roles (admin | analyst | viewer) map to allowed pages in app_config.yaml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+users:
+  admin:
+    name: "Administrator"
+    role: admin
+    # default password: admin123  — CHANGE THIS before any real deployment
+    password_sha256: "13eba367f7bb26f33fe70ea0c8cc077f0e1609b011de1758e0129bf6c2b9e849"
+
+  analyst:
+    name: "Business Analyst"
+    role: analyst
+    # default password: analyst123
+    password_sha256: "34619d69c59e6dfd7c6137d28a247b42b2f3791329ae30b50c086cd8f7b4e5bf"
+
+  viewer:
+    name: "Read-only Viewer"
+    role: viewer
+    # default password: viewer123
+    password_sha256: "098058637a8af425927a3ad61b5128a00863e90d79be4e631acfb2570aeac49a"

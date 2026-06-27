@@ -6,7 +6,7 @@ from __future__ import annotations
 import pandas as pd
 from sqlalchemy import inspect, text
 
-from src.warehouse.db import DB_PATH, make_engine
+from src.warehouse.db import current_db_path, make_engine
 from src.warehouse.schema import buildable_tables, get_table
 
 
@@ -23,7 +23,8 @@ def table_row_counts(engine) -> dict[str, int]:
 
 
 def db_size_bytes() -> int:
-    return DB_PATH.stat().st_size if DB_PATH.exists() else 0
+    p = current_db_path()
+    return p.stat().st_size if p.exists() else 0
 
 
 def completeness(engine, table) -> pd.DataFrame:

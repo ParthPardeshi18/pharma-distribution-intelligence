@@ -1,0 +1,18 @@
+# Streamlit configuration for the Pharmaceutical Distribution Intelligence
+# Platform (v1.1). Theme colours mirror the executive .docx report palette
+# (navy / slate) so the app and the printed report read as one product.
+
+[theme]
+primaryColor = "#1F3A5F"            # navy — matches report _NAVY
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F6F9"
+textColor = "#1A1A1A"
+font = "sans serif"
+
+[server]
+headless = true
+# The warehouse + GeoJSON files are read-only; allow a generous upload cap off.
+maxUploadSize = 50
+
+[browser]
+gatherUsageStats = false

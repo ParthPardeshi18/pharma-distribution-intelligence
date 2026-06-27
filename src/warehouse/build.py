@@ -450,7 +450,10 @@ class WarehouseBuilder:
 
     def run(self):
         from sqlalchemy import text
-        engine = make_engine()
+        from src.warehouse.db import current_db_path
+        # Write each mode to its own database file so building the shareable
+        # (anonymised) warehouse never overwrites the internal one.
+        engine = make_engine(current_db_path(self.mode))
         create_all(engine, drop_first=True)
         LOGS_DIR.mkdir(parents=True, exist_ok=True)
 

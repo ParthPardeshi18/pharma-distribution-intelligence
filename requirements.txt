@@ -29,5 +29,9 @@ prophet>=1.1           # forecasting with confidence intervals (works natively o
 shapely>=2.0           # geometry ops; Voronoi tessellation, polygon dissolve
 scipy>=1.11            # spatial algorithms
 
+# --- Application UI (Phase v1.1 — primary user interface) ---
+streamlit>=1.58        # multi-page app: auth, caching, drill-down, downloads
+pydeck>=0.9            # native GeoJSON maps (deck.gl) for the geographic views
+
 # --- Testing / quality ---
 pytest>=8.0
