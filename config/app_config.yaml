@@ -19,6 +19,11 @@ auth:
   # .streamlit/secrets.toml  ([auth] salt = "…")  or env AUTH_SALT.
   salt: "sukhakarta-v1.1"
   session_timeout_minutes: 240
+  # Roles permitted to see REAL (internal) customer/supplier/salesman identities.
+  # ANY role not listed here is FORCED to the anonymised (shareable) warehouse,
+  # regardless of the app's configured mode — so e.g. a 'viewer' never sees PII.
+  # Tighten to just [admin] if even analysts should see anonymised data.
+  real_data_roles: ["admin", "analyst"]
   # Pages each role may open. The navigation gate reads this.
   roles:
     admin:    [overview, decision_intelligence, strategic, forecasting, geographic, reports, data_quality]

@@ -6,6 +6,7 @@ database structure can never drift from the documentation generated alongside it
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 
 from sqlalchemy import (
@@ -27,20 +28,31 @@ _DB_NAMES = {"internal": "erp_warehouse.db", "shareable": "erp_warehouse_shareab
 # Back-compat: the historical default path (internal mode).
 DB_PATH = WAREHOUSE_DIR / _DB_NAMES["internal"]
 
+# Thread-local active mode. A Streamlit server runs each user session's script in
+# its own thread, so a per-thread mode keeps a viewer's session pinned to the
+# anonymised database even while an admin's session (a different thread) reads the
+# real one — no process-global race. Falls back to the env var for non-threaded
+# callers (the batch pipeline, tests).
+_state = threading.local()
+
+
+def set_mode(mode: str) -> None:
+    """Pin the active warehouse mode for the CURRENT thread/session."""
+    _state.mode = mode
+
 
 def current_db_path(mode: str | None = None) -> Path:
     """Resolve the active warehouse file.
 
     Precedence: explicit ``mode`` arg → ``ERP_WAREHOUSE_DB`` (full-path override)
-    → ``ERP_WAREHOUSE_MODE`` env → internal default. This is the single switch the
-    app flips so the *public* build reads anonymised data without any engine code
-    needing to know about modes.
+    → thread-local mode (``set_mode``) → ``ERP_WAREHOUSE_MODE`` env → internal.
     """
     if mode is None:
         explicit = os.environ.get("ERP_WAREHOUSE_DB")
         if explicit:
             return Path(explicit)
-        mode = os.environ.get("ERP_WAREHOUSE_MODE", "internal")
+        mode = (getattr(_state, "mode", None)
+                or os.environ.get("ERP_WAREHOUSE_MODE", "internal"))
     return WAREHOUSE_DIR / _DB_NAMES.get(mode, _DB_NAMES["internal"])
 
 

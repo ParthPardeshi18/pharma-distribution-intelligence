@@ -18,11 +18,12 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from pathlib import Path
 
 import streamlit as st
 
-from src.warehouse.db import current_db_path, make_engine
+from src.warehouse.db import current_db_path, make_engine, set_mode as _set_db_mode
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 GEO_DIR = PROJECT_ROOT / "data" / "geo"
@@ -36,19 +37,26 @@ class WarehouseMissing(RuntimeError):
     """Raised when the SQLite warehouse for the active mode has not been built."""
 
 
+# Per-session/thread active mode (mirrors the engine layer's thread-local).
+_ACTIVE = threading.local()
+
+
 # ── Mode ─────────────────────────────────────────────────────────────────────
 def bind_mode(mode: str) -> None:
-    """Point the engines at the warehouse file for ``mode`` (internal | shareable).
+    """Pin the engines (for this session/thread) to the warehouse for ``mode``.
 
-    Sets ``ERP_WAREHOUSE_MODE`` so every ``make_engine()`` in ``src/`` resolves to
-    the right database. The app calls this once per run before any data access; in
-    shareable mode the engines therefore **never** touch the real-name database.
+    Thread-local so concurrent sessions of different roles never cross over: a
+    viewer pinned to ``shareable`` keeps reading the anonymised database even
+    while an admin session reads the real one. The app calls this once per run,
+    before any data access; in shareable mode the engines **never** touch the
+    real-name database.
     """
-    os.environ["ERP_WAREHOUSE_MODE"] = mode
+    _ACTIVE.mode = mode
+    _set_db_mode(mode)
 
 
 def active_mode() -> str:
-    return os.environ.get("ERP_WAREHOUSE_MODE", "internal")
+    return getattr(_ACTIVE, "mode", None) or os.environ.get("ERP_WAREHOUSE_MODE", "internal")
 
 
 def active_db_path() -> Path:

@@ -49,16 +49,24 @@ python run_pipeline.py --mode internal  --currency INR   # real (your firm)
 python run_pipeline.py --mode shareable --currency INR   # anonymised (public)
 ```
 
-**Select the mode** (precedence: env → config):
+**Two gates decide what a user sees — role first, then app mode:**
 
-- `PDI_MODE=shareable` environment variable (recommended for deployments), or
-- `app.mode: shareable` in `config/app_config.yaml`.
+1. **Role gate (per user).** `auth.real_data_roles` in `config/app_config.yaml`
+   lists the roles allowed to see real identities (default `[admin, analyst]`).
+   **Any role not listed — e.g. `viewer` — is forced to the anonymised warehouse**,
+   no matter how the app is configured. A viewer can never be shown PII, even on
+   your internal deployment. Tighten to `[admin]` if analysts should also be
+   anonymised.
+2. **App mode (deployment-wide).** For the allowed roles, the base mode comes from
+   `PDI_MODE=shareable` (env, recommended for public deployments) → `app.mode` in
+   config (default `internal`). An **admin** can flip modes live from the sidebar
+   to preview the anonymised view (only if that warehouse is built); switching
+   clears all caches.
 
-The default is `internal`. An **admin** can flip modes live from the sidebar to
-preview the anonymised view (only if that warehouse is built); switching clears
-all caches so no internal-mode result is ever shown in shareable mode. Every page
-carries a coloured banner — 🔒 red for internal, 🔓 green for anonymised — so the
-active mode is never ambiguous.
+The active mode is per-session (thread-local), so on a shared server an admin and
+a viewer can be signed in at once and each sees only their own data — no
+cross-contamination. Every page carries a coloured banner — 🔒 red for internal,
+🔓 green for anonymised.
 
 ### Publishing publicly — do this
 
@@ -82,9 +90,9 @@ deployment):
 
 | Username | Password    | Role    | Access |
 |----------|-------------|---------|--------|
-| `admin`   | `admin123`   | admin   | all pages incl. Data Quality |
-| `analyst` | `analyst123` | analyst | all analytics + reports |
-| `viewer`  | `viewer123`  | viewer  | read-only dashboards |
+| `admin`   | `admin123`   | admin   | all pages incl. Data Quality · sees real data |
+| `analyst` | `analyst123` | analyst | all analytics + reports · sees real data |
+| `viewer`  | `viewer123`  | viewer  | read-only dashboards · **always anonymised** |
 
 Credentials live in `config/app_users.yaml` (gitignored). Copy
 `config/app_users.example.yaml`, replace the SHA-256 hashes, and override the

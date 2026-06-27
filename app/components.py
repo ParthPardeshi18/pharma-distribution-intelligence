@@ -133,8 +133,12 @@ def sidebar_filters(user, mode: str = "internal") -> dict:
         else:
             st.error("🔒 Internal · real data", icon="🔒")
 
-        # Admins may preview the other mode (only if that warehouse is present).
-        if user.role == "admin":
+        # Admins allowed real data may preview the other mode (if it's built).
+        # Roles forced to anonymised data (e.g. viewer) get no toggle.
+        can_toggle = user.role == "admin" and "admin" in config.real_data_roles()
+        if not can_toggle and mode == "shareable" and user.role not in config.real_data_roles():
+            st.caption("Your role only ever sees anonymised data.")
+        if can_toggle:
             choice = st.radio(
                 "Data mode", ["internal", "shareable"],
                 index=0 if mode == "internal" else 1, horizontal=True,

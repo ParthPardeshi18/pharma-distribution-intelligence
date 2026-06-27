@@ -66,6 +66,25 @@ def current_mode() -> str:
     return mode if mode in ("internal", "shareable") else "internal"
 
 
+def real_data_roles() -> list[str]:
+    """Roles allowed to view real (internal) identities. Everyone else is forced
+    to the anonymised warehouse."""
+    return app_config().get("auth", {}).get("real_data_roles", ["admin"])
+
+
+def effective_mode(role: str, base_mode: str) -> str:
+    """The data mode a given role actually gets.
+
+    A role NOT in ``real_data_roles`` is pinned to ``shareable`` no matter what the
+    app is configured for — so a viewer can never be shown PII, even on the firm's
+    internal deployment. Allowed roles get ``base_mode`` (config/env, default
+    internal; an admin may further preview shareable).
+    """
+    if role in real_data_roles():
+        return base_mode
+    return "shareable"
+
+
 def role_pages(role: str) -> list[str]:
     return app_config().get("auth", {}).get("roles", {}).get(role, [])
 

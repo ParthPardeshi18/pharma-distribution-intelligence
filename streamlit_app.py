@@ -63,12 +63,15 @@ def main() -> None:
     user = auth.login_gate()
 
     # Resolve the data-presentation mode and bind the engines to the matching
-    # warehouse BEFORE any data access. Only an admin may override the config
-    # default (e.g. to preview the anonymised public view on their own machine);
-    # everyone else — including a public deployment — gets the config/env mode.
+    # warehouse BEFORE any data access. Two gates combine:
+    #   1. Role gate — any role not in auth.real_data_roles is FORCED to the
+    #      anonymised warehouse (a viewer can never be shown real identities).
+    #   2. Admin preview — an admin allowed real data may toggle to shareable.
     base_mode = config.current_mode()
     override = st.session_state.get("pdi_mode_override")
-    mode = override if (override and user.role == "admin") else base_mode
+    if override and user.role == "admin" and "admin" in config.real_data_roles():
+        base_mode = override
+    mode = config.effective_mode(user.role, base_mode)
     data.bind_mode(mode)
 
     # Shared sidebar filters; stash for the page runners.

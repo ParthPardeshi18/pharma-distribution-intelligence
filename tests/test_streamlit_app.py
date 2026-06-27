@@ -19,6 +19,13 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app import auth, config  # noqa: E402
 
+
+def _shareable_db_available() -> bool:
+    from src.warehouse.db import current_db_path
+
+    return current_db_path("shareable").exists()
+
+
 SALT = "test-salt"
 STORE = {
     "alice": {"name": "Alice", "role": "admin",
@@ -66,6 +73,25 @@ def test_viewer_is_restricted():
     assert not viewer.can("data_quality")
     assert not viewer.can("reports")
     assert not viewer.can("forecasting")
+
+
+# ── Role → data-mode gate (PII visibility) ──────────────────────────────────
+def test_viewer_is_forced_to_anonymised_data():
+    # A viewer must NEVER see real identities, even when the app is internal.
+    assert config.effective_mode("viewer", "internal") == "shareable"
+    assert config.effective_mode("viewer", "shareable") == "shareable"
+
+
+def test_trusted_roles_see_configured_mode():
+    assert config.effective_mode("admin", "internal") == "internal"
+    # analyst is a real-data role by default config
+    assert config.effective_mode("analyst", "internal") == "internal"
+    # but everyone collapses to shareable when the app itself is public
+    assert config.effective_mode("admin", "shareable") == "shareable"
+
+
+def test_real_data_roles_excludes_viewer():
+    assert "viewer" not in config.real_data_roles()
 
 
 def test_every_role_has_pages_and_keys_are_known():
@@ -138,6 +164,19 @@ def test_admin_login_renders_overview():
     assert user is not None and user.role == "admin"
 
 
+@pytest.mark.slow
+@pytest.mark.skipif(not _shareable_db_available(), reason="shareable warehouse not built")
+def test_viewer_login_is_pinned_to_shareable():
+    """End-to-end: a viewer session resolves to anonymised data."""
+    at = _app().run(timeout=120)
+    at.text_input[0].set_value("viewer")
+    at.text_input[1].set_value("viewer123")
+    at.button[0].click().run(timeout=300)
+    assert not at.exception
+    assert "pdi_opts" in at.session_state
+    assert at.session_state["pdi_opts"]["mode"] == "shareable"
+
+
 # Render each page in isolation against the real warehouse to catch view-level
 # rendering errors that the login-only smoke test would miss.
 def _render_page(page_module: str, mode: str = "internal"):  # runs inside AppTest.from_function
@@ -177,12 +216,6 @@ def test_each_page_renders(page):
 
 
 # ── Privacy / anonymisation (public mode must never show real identities) ────
-def _shareable_db_available() -> bool:
-    from src.warehouse.db import current_db_path
-
-    return current_db_path("shareable").exists()
-
-
 import re  # noqa: E402
 
 _ANON = re.compile(r"^(Customer|Supplier|Salesman)_(U?\d+|UNMAPPED)$")
