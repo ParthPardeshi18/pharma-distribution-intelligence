@@ -81,12 +81,21 @@ def main() -> int:
     print(f"      {di['md']}")
 
     # Stage 7 — strategic analyses (segmentation, lifecycle, forecasts)
-    print("[7/7] Generating strategic analyses (ABC/RFM/lifecycle/forecasts) ...")
+    print("[7/8] Generating strategic analyses (ABC/RFM/lifecycle/forecasts) ...")
     from src.strategic import run as strat_run
     st = strat_run.generate()
     print(f"      sales forecast quality: {st['sales_forecast_quality']} · "
           f"peak month {st['peak_month']}")
     print(f"      {st['md']}")
+
+    # Stage 8 — Power BI star-schema exports (this mode + always a shareable set)
+    print("[8/8] Exporting star-schema CSVs for Power BI ...")
+    from src.powerbi.exports import export_for_powerbi
+    exp = export_for_powerbi(args.mode)
+    print(f"      {len(exp['tables'])} tables -> data/warehouse/exports/{args.mode}/")
+    if args.mode == "internal":
+        sh = export_for_powerbi("shareable")
+        print(f"      {len(sh['tables'])} tables -> data/warehouse/exports/shareable/ (anonymised)")
 
     print("\n" + "=" * 64)
     print(f" DONE in {time.time() - t0:.1f}s")

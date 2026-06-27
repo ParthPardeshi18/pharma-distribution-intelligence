@@ -61,7 +61,30 @@ def _load_real_names() -> list[str]:
             if len(str(v).strip()) >= 5 and str(v).upper().strip() not in allow]
 
 
+def _csv_text(path: Path) -> str:
+    """For CSVs, scan only TEXT columns. Numeric columns (surrogate keys,
+    amounts, quantities) can coincidentally form 10-digit numbers and are not PII;
+    real PII would live in a text column (a name, a mobile stored as text)."""
+    try:
+        df = pd.read_csv(path, dtype=str, keep_default_na=False, nrows=200_000)
+    except Exception:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    text_cols = []
+    for c in df.columns:
+        col = df[c]
+        # treat a column as text if a meaningful share of values are non-numeric
+        non_numeric = col[~col.str.fullmatch(r"-?\d+(\.\d+)?", na=False)]
+        name_hints = any(h in c.lower() for h in
+                         ("name", "code", "mobile", "phone", "email", "address",
+                          "customer", "supplier", "party", "salesman"))
+        if name_hints or len(non_numeric) > 0.2 * max(1, len(col)):
+            text_cols.append(c)
+    return " ".join(df[c].astype(str).str.cat(sep=" ") for c in text_cols)
+
+
 def _read_text(path: Path) -> str:
+    if path.suffix.lower() == ".csv":
+        return _csv_text(path)
     if path.suffix.lower() in BINARY_SUFFIXES:
         try:
             import zipfile
