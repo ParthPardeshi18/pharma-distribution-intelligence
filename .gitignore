@@ -32,11 +32,15 @@ reports/decision_intelligence.md
 reports/decision_intelligence.json
 reports/strategic_analysis.md
 reports/strategic_analysis.json
+reports/geo_intelligence.md
+reports/geo_intelligence.json
 outputs/charts/
 logs/
 
 # Data file types — belt-and-braces, catches stray files anywhere
 *.csv
+# curated public town coordinates — safe to commit (not data/PII)
+!config/geo_reference.csv
 *.xlsx
 *.xls
 *.db

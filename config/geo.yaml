@@ -1,0 +1,39 @@
+# Geographic Intelligence configuration.
+#
+# The firm runs ROUTE-BASED distribution from Shirur (Pune district, Maharashtra).
+# Area_Sales "areas" are delivery ROUTES, often day-prefixed (MON-PARNER,
+# WED-2-RANJANGAON …). This config drives route parsing, geocoding, and distance.
+
+base:
+  name: Shirur
+  lat: 18.8268
+  lon: 74.3733
+  district: Pune
+  state: Maharashtra
+
+# Distance rings from base (km) for distance-band analysis.
+distance_bands_km: [0, 15, 30, 50, 80, 150, 100000]
+distance_band_labels: ["≤15 km (local)", "15-30 km", "30-50 km", "50-80 km",
+                       "80-150 km", ">150 km (outstation)"]
+
+# Weekday tokens that prefix a route name (delivery day). TUS = Tuesday (ERP code).
+weekday_tokens:
+  MON: Monday
+  TUE: Tuesday
+  TUS: Tuesday
+  WED: Wednesday
+  THU: Thursday
+  FRI: Friday
+  SAT: Saturday
+  SUN: Sunday
+
+# Route names that are administrative, not geographic — excluded from maps/distance.
+non_geographic_patterns:
+  - "MR ORDER"
+  - "OUTSTANDING PARTIES"
+  - "UNDERCUTTER"
+  - "N/M-PARTY"
+  - "COMPANY"
+  - "DEFAULT"
+
+geo_reference_path: config/geo_reference.csv

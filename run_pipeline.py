@@ -88,8 +88,15 @@ def main() -> int:
           f"peak month {st['peak_month']}")
     print(f"      {st['md']}")
 
-    # Stage 8 — Power BI star-schema exports (this mode + always a shareable set)
-    print("[8/9] Exporting star-schema CSVs for Power BI ...")
+    # Stage 8 — geographic intelligence (route geocoding, territory, maps)
+    print("[8/10] Generating geographic intelligence (territory, routes, maps) ...")
+    from src.geo import run as geo_run
+    geo = geo_run.generate()
+    print(f"      geo HHI {geo['hhi']:.0f} · {geo['local_share_pct']:.0f}% local · "
+          f"{len(geo['charts'])} maps · {geo['md']}")
+
+    # Stage 9 — Power BI star-schema exports (this mode + always a shareable set)
+    print("[9/10] Exporting star-schema CSVs for Power BI ...")
     from src.powerbi.exports import export_for_powerbi
     exp = export_for_powerbi(args.mode)
     print(f"      {len(exp['tables'])} tables -> data/warehouse/exports/{args.mode}/")
@@ -97,8 +104,8 @@ def main() -> int:
         sh = export_for_powerbi("shareable")
         print(f"      {len(sh['tables'])} tables -> data/warehouse/exports/shareable/ (anonymised)")
 
-    # Stage 9 — Business Health Report (.docx); internal + shareable portfolio copy
-    print("[9/9] Generating Business Health Report (.docx) ...")
+    # Stage 10 — Business Health Report (.docx); internal + shareable portfolio copy
+    print("[10/10] Generating Business Health Report (.docx) ...")
     from src.report.health_report import generate_health_report
     print(f"      {generate_health_report(args.mode)}")
     if args.mode == "internal":

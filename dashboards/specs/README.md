@@ -17,6 +17,7 @@ identical in both modes — only identity labels differ (real vs anonymised).
 5. [Procurement](05_procurement.md) — spend, supplier dependency, price changes
 6. [Operations](06_operations.md) — throughput, route/territory coverage
 7. [Working Capital](07_working_capital.md) — debtor/creditor/inventory days, CCC
+8. [Geographic & Route Intelligence](08_geographic.md) — territory map, distance bands, delivery-day productivity, coverage white-space
 
 ## Build order
 1. Run `python run_pipeline.py --mode internal` → builds warehouse + exports.
