@@ -1,5 +1,7 @@
 # ERP BI & Decision-Support System — Python dependencies
-# Pinned loosely (>=) for a 10-year project; lockfile/venv pins exact versions.
+# Production runtime: Python 3.11 (see .python-version). The full scientific
+# stack — matplotlib, Prophet, scikit-learn, statsmodels — installs natively on
+# 3.11. Pinned loosely (>=); the committed venv pins exact versions.
 
 # --- Core data stack (needed Phase 0-2) ---
 pandas>=2.2
@@ -21,7 +23,7 @@ plotly>=5.20
 # --- Analytics / ML (Phase 4) ---
 scikit-learn>=1.4
 statsmodels>=0.14      # ARIMA fallback for forecasting
-# prophet>=1.1         # optional; install if wheels available, else statsmodels ARIMA is used
+prophet>=1.1           # forecasting with confidence intervals (works natively on 3.11)
 
 # --- Testing / quality ---
 pytest>=8.0

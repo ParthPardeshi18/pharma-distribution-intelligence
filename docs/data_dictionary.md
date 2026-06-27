@@ -1,6 +1,6 @@
 # Data Dictionary
 
-> Generated 2026-06-26 from `src/warehouse/schema.py`. Do not edit by hand — regenerate with `python -m src.warehouse.catalog`.
+> Generated 2026-06-27 from `src/warehouse/schema.py`. Do not edit by hand — regenerate with `python -m src.warehouse.catalog`.
 
 Every business table also carries the **standard lineage/audit/quality columns** listed once at the end.
 

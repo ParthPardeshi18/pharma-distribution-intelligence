@@ -1,6 +1,6 @@
 # Business Metadata Catalog
 
-> Generated 2026-06-26. The business-facing companion to the data dictionary: what each table means, its KPIs, how it links, and which ERP report it comes from.
+> Generated 2026-06-27. The business-facing companion to the data dictionary: what each table means, its KPIs, how it links, and which ERP report it comes from.
 
 ## Tables at a glance
 
