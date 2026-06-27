@@ -89,9 +89,17 @@ def _read_text(path: Path) -> str:
         try:
             import zipfile
             with zipfile.ZipFile(path) as z:
-                return " ".join(
-                    z.read(n).decode("utf-8", "ignore")
-                    for n in z.namelist() if n.endswith(".xml"))
+                # Only USER-CONTENT parts — not theme/styles/fontTable, whose font
+                # and style names (e.g. the "Mangal" Devanagari font) coincide with
+                # real names and cause false positives.
+                def is_content(n: str) -> bool:
+                    n = n.lower()
+                    return (n in ("word/document.xml", "xl/sharedstrings.xml")
+                            or n.startswith(("word/header", "word/footer",
+                                             "xl/worksheets/", "ppt/slides/slide"))
+                            or n.startswith("docprops/"))
+                return " ".join(z.read(n).decode("utf-8", "ignore")
+                                for n in z.namelist() if is_content(n))
         except Exception:
             return ""
     try:

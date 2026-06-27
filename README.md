@@ -17,8 +17,8 @@ Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
 - ✅ **Phase 2 — Cleaning, validation & warehouse build**
 - ✅ **Phase 3 — Decision Intelligence layer** (KPIs, insights, risks, opportunities, recommendations, scorecards, Business Health Index)
 - ✅ **Phase 4 — Strategic analyses** (ABC/Pareto, RFM, lifecycle, seasonality, multi-year trends, inventory ageing, profitability ranking, forecasting with confidence intervals)
-- ✅ **Phase 5 — Executive dashboard specifications** (7 Power BI stakeholder specs + star-schema CSV exports, internal + anonymized shareable) *(under review)*
-- ⬜ Phase 6 — Business health report
+- ✅ **Phase 5 — Executive dashboard specifications** (7 Power BI stakeholder specs + star-schema CSV exports, internal + anonymized shareable)
+- ✅ **Phase 6 — Business health report** (.docx executive report — verdict, trends, risks, opportunities, 2×2 recommendations; internal + shareable) *(under review)*
 - ⬜ Phase 7 — Roadmap & AI enhancement plan
 
 ## Architecture (key decisions)

@@ -89,13 +89,20 @@ def main() -> int:
     print(f"      {st['md']}")
 
     # Stage 8 — Power BI star-schema exports (this mode + always a shareable set)
-    print("[8/8] Exporting star-schema CSVs for Power BI ...")
+    print("[8/9] Exporting star-schema CSVs for Power BI ...")
     from src.powerbi.exports import export_for_powerbi
     exp = export_for_powerbi(args.mode)
     print(f"      {len(exp['tables'])} tables -> data/warehouse/exports/{args.mode}/")
     if args.mode == "internal":
         sh = export_for_powerbi("shareable")
         print(f"      {len(sh['tables'])} tables -> data/warehouse/exports/shareable/ (anonymised)")
+
+    # Stage 9 — Business Health Report (.docx); internal + shareable portfolio copy
+    print("[9/9] Generating Business Health Report (.docx) ...")
+    from src.report.health_report import generate_health_report
+    print(f"      {generate_health_report(args.mode)}")
+    if args.mode == "internal":
+        print(f"      {generate_health_report('shareable')} (portfolio, anonymised)")
 
     print("\n" + "=" * 64)
     print(f" DONE in {time.time() - t0:.1f}s")
