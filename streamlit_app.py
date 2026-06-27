@@ -74,6 +74,11 @@ def main() -> None:
     mode = config.effective_mode(user.role, base_mode)
     data.bind_mode(mode)
 
+    # Public demo: fetch the anonymised warehouse on first run if it isn't present
+    # (no-op on a normal internal install).
+    from app import bootstrap
+    bootstrap.ensure_demo_data(mode)
+
     # Shared sidebar filters; stash for the page runners.
     opts = C.sidebar_filters(user, mode)
     st.session_state["pdi_opts"] = opts

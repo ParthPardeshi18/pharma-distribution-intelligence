@@ -41,6 +41,13 @@ health_index:
   # cash_preservation fits this cash-heavy, route-based distributor.
   default_profile: "cash_preservation"
 
+demo:
+  # Public-demo bootstrap. On a hosted shareable-mode deployment with no warehouse
+  # present, the app downloads this ANONYMISED warehouse (published as a GitHub
+  # Release asset) on first start. Empty on a normal internal install. Override via
+  # DEMO_DB_URL env or [demo] db_url in .streamlit/secrets.toml.
+  db_url: "https://github.com/ParthPardeshi18/pharma-distribution-intelligence/releases/download/demo-data-v1/erp_warehouse_shareable.db"
+
 ai_summary:
   # The executive narrative surfaced in the app always comes from the local
   # Decision Intelligence engine (no network, always available). An optional

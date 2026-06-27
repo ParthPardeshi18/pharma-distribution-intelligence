@@ -43,6 +43,10 @@ python -m streamlit run streamlit_app.py                  # launch the app (sign
 No real data? Explore the anonymised **[samples/](samples/)** dataset (CSV + GeoJSON).
 The web app is the primary interface — see **[docs/STREAMLIT_APP.md](docs/STREAMLIT_APP.md)**.
 
+**Live demo (anonymised):** deploy your own in minutes — see
+**[docs/DEPLOYMENT_DEMO.md](docs/DEPLOYMENT_DEMO.md)**. The public instance serves
+only anonymised data (`viewer / viewer123`); real data never leaves your machine.
+
 ## Documentation
 
 - **Architecture & vision:** [ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
