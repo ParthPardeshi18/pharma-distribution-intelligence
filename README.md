@@ -15,8 +15,8 @@ Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
 - ✅ **Phase 0 — Discovery, setup & PII protection**
 - ✅ **Phase 1 — Data model & relationship mapping** (ERP Adapter, ERD, star schema)
 - ✅ **Phase 2 — Cleaning, validation & warehouse build**
-- ✅ **Phase 3 — Decision Intelligence layer** (KPIs, insights, risks, opportunities, recommendations, scorecards, Business Health Index) *(under review)*
-- ⬜ Phase 4 — Strategic analyses
+- ✅ **Phase 3 — Decision Intelligence layer** (KPIs, insights, risks, opportunities, recommendations, scorecards, Business Health Index)
+- ✅ **Phase 4 — Strategic analyses** (ABC/Pareto, RFM, lifecycle, seasonality, multi-year trends, inventory ageing, profitability ranking, forecasting with confidence intervals) *(under review)*
 - ⬜ Phase 5 — Executive dashboard specifications
 - ⬜ Phase 6 — Business health report
 - ⬜ Phase 7 — Roadmap & AI enhancement plan

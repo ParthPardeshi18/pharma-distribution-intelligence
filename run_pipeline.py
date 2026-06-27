@@ -74,11 +74,19 @@ def main() -> int:
     print(f"      {csv}")
 
     # Stage 6 — decision intelligence
-    print("[6/6] Generating decision intelligence (analysis, insights, BHI) ...")
+    print("[6/7] Generating decision intelligence (analysis, insights, BHI) ...")
     from src.di import run as di_run
     di = di_run.generate()
     print(f"      Business Health Index: {di['bhi']}/100 ({di['grade']})")
     print(f"      {di['md']}")
+
+    # Stage 7 — strategic analyses (segmentation, lifecycle, forecasts)
+    print("[7/7] Generating strategic analyses (ABC/RFM/lifecycle/forecasts) ...")
+    from src.strategic import run as strat_run
+    st = strat_run.generate()
+    print(f"      sales forecast quality: {st['sales_forecast_quality']} · "
+          f"peak month {st['peak_month']}")
+    print(f"      {st['md']}")
 
     print("\n" + "=" * 64)
     print(f" DONE in {time.time() - t0:.1f}s")
