@@ -36,7 +36,7 @@ def _fmt_metric(m) -> str:
     return f"| {m.label} | {v} | {yoy} | {score} |"
 
 
-def render_markdown(reports, bhi) -> str:
+def render_markdown(reports, bhi, profile_scores=None) -> str:
     L = ["# Decision Intelligence Report", ""]
     L.append(f"> Sukhakarta Distributors · generated {dt.date.today():%Y-%m-%d}. "
              "A system that explains the business and recommends actions.")
@@ -44,6 +44,7 @@ def render_markdown(reports, bhi) -> str:
 
     # --- Business Health Index ---
     L.append(f"## Business Health Index: {bhi.score}/100  (grade {bhi.grade})")
+    L.append(f"*Weighting profile: **{bhi.profile}**.*")
     L.append("")
     L.append("| Component | KPI value | Score | Weight | Contribution |")
     L.append("|---|--:|--:|--:|--:|")
@@ -55,6 +56,15 @@ def render_markdown(reports, bhi) -> str:
         L.append("")
         L.append(f"> {bhi.note}")
     L.append("")
+    if profile_scores:
+        L.append("**Health Index by strategy profile** "
+                 "(same KPIs, different priorities — weights in config/health_index.yaml):")
+        L.append("")
+        L.append("| Profile | " + " | ".join(p.replace("_", " ").title()
+                                              for p in profile_scores) + " |")
+        L.append("|---|" + "---|" * len(profile_scores))
+        L.append("| BHI | " + " | ".join(f"{s:.0f}" for s in profile_scores.values()) + " |")
+        L.append("")
 
     # --- cross-domain priorities ---
     all_risks = sorted((r for rep in reports for r in rep.risks),
@@ -183,25 +193,34 @@ def _charts(reports, bhi):
     return made
 
 
-def generate() -> dict:
+def generate(profile: str | None = None) -> dict:
     reports = [m.analyze() for m in ALL]
-    bhi = health_index.compute(reports)
+    bhi = health_index.compute(reports, profile=profile)
+    profile_scores = health_index.compute_all_profiles(reports)
 
     REPORT_MD.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_MD.write_text(render_markdown(reports, bhi), encoding="utf-8")
+    REPORT_MD.write_text(render_markdown(reports, bhi, profile_scores), encoding="utf-8")
     REPORT_JSON.write_text(json.dumps(
         {"generated": str(dt.date.today()),
          "business_health_index": bhi.to_dict(),
+         "bhi_by_profile": profile_scores,
          "domains": [r.to_dict() for r in reports]},
         indent=2, default=str), encoding="utf-8")
     charts = _charts(reports, bhi)
-    return {"bhi": bhi.score, "grade": bhi.grade, "md": str(REPORT_MD),
+    return {"bhi": bhi.score, "grade": bhi.grade, "profile": bhi.profile,
+            "profile_scores": profile_scores, "md": str(REPORT_MD),
             "json": str(REPORT_JSON), "charts": charts}
 
 
 def main():
-    out = generate()
-    print(f"Business Health Index: {out['bhi']}/100 ({out['grade']})")
+    import argparse
+    ap = argparse.ArgumentParser(description="Decision Intelligence runner")
+    ap.add_argument("--profile", default=None, help="BHI weight profile")
+    args = ap.parse_args()
+    out = generate(profile=args.profile)
+    print(f"Business Health Index: {out['bhi']}/100 ({out['grade']}) "
+          f"[profile: {out['profile']}]")
+    print("BHI by profile:", {p: round(s) for p, s in out["profile_scores"].items()})
     print("Report:", out["md"])
     print("JSON:  ", out["json"])
     for c in out["charts"]:

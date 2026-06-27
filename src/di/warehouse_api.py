@@ -55,6 +55,18 @@ def sales_by_customer(fy: str) -> pd.DataFrame:
                  GROUP BY 1,2 ORDER BY revenue DESC""")
 
 
+def customer_orders() -> pd.DataFrame:
+    """One row per (customer, order date) across all years — for recency/frequency
+    churn analysis. date_key (YYYYMMDD) is converted to a real date."""
+    df = q("""SELECT customer_key, date_key, SUM(net_amount_inr) AS amount
+              FROM fact_sales
+              WHERE customer_key IS NOT NULL AND date_key IS NOT NULL
+              GROUP BY customer_key, date_key""")
+    df["order_date"] = pd.to_datetime(df["date_key"].astype(int).astype(str),
+                                      format="%Y%m%d")
+    return df
+
+
 def customers_active(fy: str) -> set:
     df = q(f"""SELECT DISTINCT customer_key FROM fact_sales
                WHERE financial_year='{fy}' AND customer_key IS NOT NULL""")

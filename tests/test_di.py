@@ -92,3 +92,29 @@ def test_business_health_index_in_range():
     assert 0 <= bhi.score <= 100
     assert bhi.grade in list("ABCDEF")
     assert bhi.components
+
+
+@_skip
+def test_health_index_profiles_all_valid():
+    from src.di import health_index
+    from src.di.domains import ALL
+    reports = [m.analyze() for m in ALL]
+    scores = health_index.compute_all_profiles(reports)
+    assert {"balanced", "conservative", "growth", "cash_preservation",
+            "profit_optimization"} <= set(scores)
+    assert all(0 <= s <= 100 for s in scores.values())
+
+
+@_skip
+def test_recency_churn_model():
+    from src.di.churn import analyze_churn
+    ch = analyze_churn()
+    # established base partitions into active/at_risk/churned
+    assert ch.established == ch.active + ch.at_risk + ch.churned
+    assert ch.retention_pct is not None and 0 <= ch.retention_pct <= 100
+
+
+def test_recalibrated_thresholds():
+    from src.di.kpis import get_spec
+    assert get_spec("gross_margin_pct").good == 6        # was 8
+    assert get_spec("inventory_turnover").good == 9      # was 12

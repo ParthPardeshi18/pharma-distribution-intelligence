@@ -1,0 +1,16 @@
+# Decision Intelligence behavioural settings (business-calibrated, not statistical).
+
+# --- Customer churn (route-based distribution to a fixed retailer network) ---
+# This is NOT a walk-in business: cash (CA) vs credit (CR/CC) only indicates when
+# payment is collected, so retention is NOT split by payment type. A customer is
+# "churned" when they have stopped ordering for sustained period relative to their
+# OWN ordering cadence (frequency-aware), not a flat cut-off.
+churn:
+  inactivity_days: 120          # base threshold; a customer silent this long is a concern
+  frequency_multiple: 3.0       # churned if gap since last order > this × the customer's
+                                #   median inter-order gap (frequency-aware)
+  at_risk_fraction: 0.6         # "at-risk" once gap exceeds this fraction of the churn threshold
+  min_orders_established: 2     # only customers with ≥ this many lifetime orders are judged
+  reference: data_max           # 'data_max' (latest order date in data) or an ISO date
+  lookback_months: 12           # window that defines the "established active base"
+  # NOTE: seasonal purchasing patterns are refined further in Phase 4 (seasonality).

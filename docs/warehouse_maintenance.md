@@ -87,7 +87,21 @@ key so analysis is never blocked.
 - **`Salesman_Master` is misaligned** in the export (name column largely blank);
   `dim_salesman` is sparse. No fact references salesman, so no measure is affected.
 
-## 9. Regenerating documentation
+## 9. Decision Intelligence calibration (business-tuned)
+
+The DI layer (`src/di/`) is calibrated to **route-based pharma distribution**, not
+generic statistics:
+- **KPI thresholds** live in `src/di/kpis.py` (e.g. healthy gross margin 6%,
+  inventory turnover 9×). Adjust there if the business profile changes.
+- **Customer churn** is recency + frequency based (`src/di/churn.py`,
+  `config/decision_intelligence.yaml`): a retailer is "churned" when silent beyond
+  a multiple of *their own* ordering cadence — cash vs credit is NOT split (both
+  are repeat route customers; cash just means paid-on-delivery).
+- **Business Health Index** supports weight **profiles**
+  (`config/health_index.yaml`): balanced, conservative, growth, cash_preservation,
+  profit_optimization, custom. Run `python -m src.di.run --profile cash_preservation`.
+
+## 10. Regenerating documentation
 
 ```
 python -m src.warehouse.catalog     # data dictionary + business catalog

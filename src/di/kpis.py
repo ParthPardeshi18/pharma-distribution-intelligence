@@ -64,7 +64,7 @@ REGISTRY: dict[str, KPISpec] = {s.key: s for s in [
 
     # ---- Profitability ----
     _k("gross_margin_pct", "profitability", "Gross margin", "%",
-       "Gross profit as % of billed sales", "up_good", good=8, bad=3, fmt="{:,.2f}"),
+       "Gross profit as % of billed sales", "up_good", good=6, bad=3, fmt="{:,.2f}"),
     _k("gross_profit_inr", "profitability", "Gross profit", "₹",
        "Billed sales minus cost of goods", "up_good"),
     _k("profit_growth_pct", "profitability", "Profit growth (YoY)", "%",
@@ -98,9 +98,9 @@ REGISTRY: dict[str, KPISpec] = {s.key: s for s in [
     _k("inventory_value_inr", "inventory", "Closing inventory value", "₹",
        "Valuation of closing stock", "neutral"),
     _k("inventory_turnover", "inventory", "Inventory turnover", "x",
-       "Cost of goods sold / closing inventory", "up_good", good=12, bad=4, fmt="{:,.1f}"),
+       "Cost of goods sold / closing inventory", "up_good", good=9, bad=4, fmt="{:,.1f}"),
     _k("inventory_days", "inventory", "Inventory days", "days",
-       "Days of stock on hand (365 / turnover)", "down_good", good=30, bad=90, fmt="{:,.0f}"),
+       "Days of stock on hand (365 / turnover)", "down_good", good=40, bad=90, fmt="{:,.0f}"),
 
     # ---- Working capital ----
     _k("debtor_days", "working_capital", "Debtor days", "days",

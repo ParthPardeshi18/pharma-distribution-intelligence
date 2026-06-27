@@ -1,21 +1,92 @@
-# Business Health Index (0-100) — configurable component weights.
+# Business Health Index (0-100) — configurable WEIGHT PROFILES.
 #
 # BHI = Σ(component_score × weight) / Σ(weight), where each component_score is the
 # 0-100 health score of the named KPI (scored against its registry thresholds).
-# Edit weights freely; they are renormalised, so they need not sum to 1.
+# Weights are renormalised, so they need not sum to 1.
 #
-# Each component maps to a KPI in src/di/kpis.py (single source of truth for the
-# thresholds that produce the score).
+# Different businesses optimise for different goals, so weighting is a PROFILE, not
+# a single fixed scheme. Select with `default_profile` (or pass profile= to
+# health_index.compute / --profile on the runner). Edit `custom` freely.
 
+default_profile: balanced
+
+# Component -> KPI mapping (shared by all profiles). The KPI's registry thresholds
+# (src/di/kpis.py) produce each component's 0-100 score.
 components:
-  revenue_growth:         {kpi: revenue_growth_pct,        weight: 0.18}
-  profitability:          {kpi: gross_margin_pct,          weight: 0.18}
-  working_capital:        {kpi: ccc_days,                  weight: 0.14}
-  inventory_efficiency:   {kpi: inventory_turnover,        weight: 0.12}
-  collections:            {kpi: debtor_days,               weight: 0.10}
-  customer_concentration: {kpi: top10_customer_share_pct,  weight: 0.10}
-  supplier_dependency:    {kpi: top5_supplier_share_pct,   weight: 0.10}
-  cash_flow:              {kpi: operating_cash_margin_pct,  weight: 0.08}
+  revenue_growth:         revenue_growth_pct
+  profitability:          gross_margin_pct
+  working_capital:        ccc_days
+  inventory_efficiency:   inventory_turnover
+  collections:            debtor_days
+  customer_retention:     customer_retention_pct
+  customer_concentration: top10_customer_share_pct
+  supplier_dependency:    top5_supplier_share_pct
+  cash_flow:              operating_cash_margin_pct
 
-# Grade bands for the composite index (informational; grade() in base.py).
-# A 90+ · B 80+ · C 70+ · D 60+ · E 50+ · F <50
+# Weight profiles. Each lists component: weight (omitted components get weight 0).
+profiles:
+  balanced:
+    revenue_growth: 0.15
+    profitability: 0.15
+    working_capital: 0.12
+    inventory_efficiency: 0.12
+    collections: 0.10
+    customer_retention: 0.12
+    customer_concentration: 0.08
+    supplier_dependency: 0.08
+    cash_flow: 0.08
+
+  conservative:        # stability & risk first
+    profitability: 0.16
+    working_capital: 0.16
+    collections: 0.16
+    inventory_efficiency: 0.12
+    customer_retention: 0.12
+    supplier_dependency: 0.12
+    cash_flow: 0.10
+    revenue_growth: 0.04
+    customer_concentration: 0.02
+
+  growth:              # top-line & market expansion
+    revenue_growth: 0.30
+    customer_retention: 0.16
+    customer_concentration: 0.12
+    profitability: 0.14
+    cash_flow: 0.10
+    working_capital: 0.06
+    inventory_efficiency: 0.06
+    collections: 0.04
+    supplier_dependency: 0.02
+
+  cash_preservation:   # cash-heavy distributor (this firm's default fit)
+    collections: 0.20
+    working_capital: 0.20
+    inventory_efficiency: 0.18
+    cash_flow: 0.16
+    profitability: 0.12
+    customer_retention: 0.06
+    revenue_growth: 0.04
+    supplier_dependency: 0.02
+    customer_concentration: 0.02
+
+  profit_optimization: # margin & profit quality
+    profitability: 0.34
+    inventory_efficiency: 0.14
+    working_capital: 0.12
+    cash_flow: 0.12
+    supplier_dependency: 0.10
+    customer_retention: 0.08
+    revenue_growth: 0.06
+    collections: 0.02
+    customer_concentration: 0.02
+
+  custom:              # edit to taste
+    revenue_growth: 0.11
+    profitability: 0.11
+    working_capital: 0.11
+    inventory_efficiency: 0.11
+    collections: 0.11
+    customer_retention: 0.11
+    customer_concentration: 0.11
+    supplier_dependency: 0.11
+    cash_flow: 0.12
