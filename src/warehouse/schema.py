@@ -176,6 +176,30 @@ _DIMENSIONS = [
             ColumnSpec("zone_name", "TEXT", "Zone", source_column="zone_name"),
         ],
     ),
+    TableSpec(
+        "dim_geo_feature", "dimension", "one spatial feature (any layer)",
+        "Canonical GIS layer: every geographic feature (district / taluka / "
+        "village boundary, sales territory, delivery route, customer & warehouse "
+        "location) with its geometry stored as GeoJSON (RFC 7946). Joins to facts "
+        "by name/area; the geometry is the source of truth, lat/lon is a cache.",
+        "src/geo/gis (GeoJSON layers in data/geo/)",
+        [
+            ColumnSpec("geo_feature_id", "TEXT", "Stable id, e.g. 'village:SHIRUR'",
+                       nullable=False, is_key=True),
+            ColumnSpec("layer", "TEXT", "districts|talukas|villages|territories|"
+                       "routes|customers|warehouses", nullable=False),
+            ColumnSpec("feature_type", "TEXT", "GeoJSON geometry type"),
+            ColumnSpec("name", "TEXT", "Display name", nullable=False),
+            ColumnSpec("parent_taluka", "TEXT", "Taluka this feature rolls up to"),
+            ColumnSpec("parent_district", "TEXT", "District this feature rolls up to"),
+            ColumnSpec("centroid_lat", "REAL", "Centroid latitude (cache)"),
+            ColumnSpec("centroid_lon", "REAL", "Centroid longitude (cache)"),
+            ColumnSpec("distance_km", "REAL", "Distance from warehouse base (km)"),
+            ColumnSpec("geometry_geojson", "TEXT", "Canonical geometry (GeoJSON)",
+                       "The authoritative spatial representation of this feature"),
+            ColumnSpec("properties_json", "TEXT", "Feature metrics (sales/customers) as JSON"),
+        ],
+    ),
 ]
 
 # --------------------------------------------------------------------------- #
@@ -386,6 +410,46 @@ _FUTURE = [
             ColumnSpec("financial_year", "TEXT", "Financial year", is_key=True),
             ColumnSpec("quantity", "REAL", "Units"),
             _money("line_amount_inr", "Line amount, INR"),
+        ],
+        build_now=False,
+    ),
+    TableSpec(
+        "fact_gps_ping", "fact", "one GPS position fix from a delivery vehicle",
+        "FUTURE (spatial): raw GPS traces for vehicles/devices. Each ping is a "
+        "Point geometry with a timestamp and speed. Enables actual-route "
+        "reconstruction, drive-time analysis, and spatial-AI models. Joins to "
+        "dim_geo_feature (route/territory) and dim_date. No redesign needed — the "
+        "GIS layer already speaks GeoJSON.",
+        "FUTURE: telematics / vehicle GPS feed",
+        [
+            ColumnSpec("ping_id", "INTEGER", "Surrogate id", is_key=True),
+            ColumnSpec("vehicle_id", "TEXT", "Vehicle/device"),
+            ColumnSpec("date_key", "INTEGER", "FK to dim_date", is_fk="dim_date"),
+            ColumnSpec("ts", "TIMESTAMP", "Fix timestamp (UTC)"),
+            ColumnSpec("lat", "REAL", "Latitude"),
+            ColumnSpec("lon", "REAL", "Longitude"),
+            ColumnSpec("speed_kmph", "REAL", "Instantaneous speed"),
+            ColumnSpec("geometry_geojson", "TEXT", "Point geometry (GeoJSON)"),
+        ],
+        build_now=False,
+    ),
+    TableSpec(
+        "fact_vehicle_route", "fact", "one driven delivery route (a trip)",
+        "FUTURE (spatial): the ACTUAL path a vehicle drove on a day, as a "
+        "LineString, with distance, stop count, and duration — the basis for "
+        "delivery-route optimisation (planned vs actual) and spatial AI. Built "
+        "from fact_gps_ping or a routing engine. Backward-compatible with the GIS "
+        "layer.",
+        "FUTURE: derived from fact_gps_ping / routing engine",
+        [
+            ColumnSpec("trip_id", "INTEGER", "Surrogate id", is_key=True),
+            ColumnSpec("vehicle_id", "TEXT", "Vehicle"),
+            ColumnSpec("date_key", "INTEGER", "FK to dim_date", is_fk="dim_date"),
+            ColumnSpec("route_feature_id", "TEXT", "FK to dim_geo_feature (planned route)"),
+            ColumnSpec("geometry_geojson", "TEXT", "Driven path (GeoJSON LineString)"),
+            ColumnSpec("distance_km", "REAL", "Distance driven"),
+            ColumnSpec("stops", "INTEGER", "Delivery stops"),
+            ColumnSpec("duration_min", "REAL", "Trip duration (minutes)"),
         ],
         build_now=False,
     ),

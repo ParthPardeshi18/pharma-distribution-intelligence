@@ -35,6 +35,9 @@ reports/strategic_analysis.json
 reports/geo_intelligence.md
 reports/geo_intelligence.json
 outputs/charts/
+# Generated GIS artifacts (real ₹/firm name; regenerable via the pipeline)
+data/geo/
+dashboards/geo/
 logs/
 
 # Data file types — belt-and-braces, catches stray files anywhere

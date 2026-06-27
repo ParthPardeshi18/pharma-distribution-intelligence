@@ -4,11 +4,30 @@
 from geographically, which routes/days are productive, and where is the coverage
 white-space?"* **Cadence:** monthly + route reviews.
 
-## Data
-Built on the geocoded route layer (`src/geo/`): Area_Sales routes parsed (day +
-town), geocoded to coordinates via `data/reference/geo_reference.csv`, with
-distance from the Shirur base. Load `dim_route_geo.csv` (route, town, lat, lon,
-district, distance_km, delivery_day, customers, bills, sales) alongside the model.
+## Data — canonical GeoJSON (GIS layer)
+Geography is now a proper GIS layer (`src/geo/gis/`) with **GeoJSON as the
+canonical format** (lat/lon is only a geocoding cache). The pipeline writes
+`data/geo/*.geojson` and exports copies to `data/warehouse/exports/{mode}/geo/`:
+
+| Layer | Geometry | Use |
+|---|---|---|
+| `districts` / `talukas` / `villages` | Polygon | choropleth (sales/customers) |
+| `territories` | Polygon | sales-territory heatmap (by route-day) |
+| `routes` | LineString | delivery-route visualisation |
+| `customers` | Point | customer-density / expansion map |
+| `warehouses` | Point | base location |
+
+The warehouse `dim_geo_feature` table stores every feature with its geometry as
+GeoJSON (the source of truth) plus metrics — joinable to facts.
+
+### Consuming the GeoJSON
+- **Power BI**: Shape Map visual → add the `villages`/`districts` GeoJSON as a
+  custom map; bind colour to `sales_inr`. (Also `dim_route_geo.csv` for the basic
+  Map visual.)
+- **Leaflet / Mapbox / Azure Maps / deck.gl**: load the GeoJSON FeatureCollections
+  directly. A ready interactive **Leaflet** map is generated at
+  `dashboards/geo/geo_intelligence_map.html` (choropleth, territories, routes,
+  customer density, coverage rings, expansion targets — all toggleable).
 
 ## Layout
 

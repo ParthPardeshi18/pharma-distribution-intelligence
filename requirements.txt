@@ -25,5 +25,9 @@ scikit-learn>=1.4
 statsmodels>=0.14      # ARIMA fallback for forecasting
 prophet>=1.1           # forecasting with confidence intervals (works natively on 3.11)
 
+# --- Geospatial / GIS (Phase 6.6) ---
+shapely>=2.0           # geometry ops; Voronoi tessellation, polygon dissolve
+scipy>=1.11            # spatial algorithms
+
 # --- Testing / quality ---
 pytest>=8.0

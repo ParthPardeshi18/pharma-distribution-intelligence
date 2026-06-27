@@ -1,41 +1,41 @@
-place_key,display_name,lat,lon,district,state,source
-SHIRUR,Shirur,18.8268,74.3733,Pune,Maharashtra,curated
-GHODNADI,Ghodnadi (Shirur),18.8268,74.3733,Pune,Maharashtra,curated
-RANJANGAON,Ranjangaon,18.7806,74.2558,Pune,Maharashtra,curated
-SARADWADI,Saradwadi,18.7900,74.2800,Pune,Maharashtra,curated
-KAREGAON,Karegaon,18.7400,74.3000,Pune,Maharashtra,curated
-DHOK SANGAVI,Dhok Sangavi,18.7200,74.2700,Pune,Maharashtra,curated
-KONDHAPURI,Kondhapuri,18.7200,74.2000,Pune,Maharashtra,curated
-SHIKRAPUR,Shikrapur,18.6986,74.1392,Pune,Maharashtra,curated
-TALEGAON DHAMDHERE,Talegaon Dhamdhere,18.6928,74.2017,Pune,Maharashtra,curated
-SANASWADI,Sanaswadi,18.6600,74.1000,Pune,Maharashtra,curated
-PERANE,Perane Fata,18.6600,74.0800,Pune,Maharashtra,curated
-WAGHOLI,Wagholi,18.5800,73.9800,Pune,Maharashtra,curated
-PABAL,Pabal,18.8300,74.0800,Pune,Maharashtra,curated
-NIGHOJ,Nighoj,19.0500,74.3000,Ahmednagar,Maharashtra,curated
-PARNER,Parner,19.0023,74.4386,Ahmednagar,Maharashtra,curated
-SHRIGONDA,Shrigonda,18.6147,74.6997,Ahmednagar,Maharashtra,curated
-KASTI,Kasti,18.5500,74.6200,Ahmednagar,Maharashtra,curated
-KEDGAON,Kedgaon,18.6600,74.5500,Ahmednagar,Maharashtra,curated
-KOLGOAN,Kolgaon,19.1000,74.6500,Ahmednagar,Maharashtra,curated
-BELHE,Belhe,19.1833,74.3000,Pune,Maharashtra,curated
-DAUND,Daund,18.4647,74.5803,Pune,Maharashtra,curated
-BARAMATI,Baramati,18.1514,74.5777,Pune,Maharashtra,curated
-URULIKANCHAN,Uruli Kanchan,18.4839,74.0539,Pune,Maharashtra,curated
-MANCHAR,Manchar,19.0008,73.9400,Pune,Maharashtra,curated
-MALEGAON,Malegaon (Baramati),18.3500,74.5500,Pune,Maharashtra,curated
-VADGAON MAWAL,Vadgaon Maval,18.7400,73.6200,Pune,Maharashtra,curated
-ANNAPUR,Annapur,18.9000,74.4500,Ahmednagar,Maharashtra,curated
-AHMEDNAGAR,Ahmednagar,19.0948,74.7480,Ahmednagar,Maharashtra,curated
-PUNE,Pune,18.5204,73.8567,Pune,Maharashtra,curated
-CHAKAN,Chakan,18.7606,73.8636,Pune,Maharashtra,curated
-NASHIK,Nashik,19.9975,73.7898,Nashik,Maharashtra,curated
-WASHIM,Washim,20.1110,77.1331,Washim,Maharashtra,curated
-KARAD,Karad,17.2890,74.1840,Satara,Maharashtra,curated
-MUMBAI,Mumbai,19.0760,72.8777,Mumbai,Maharashtra,curated
-KARNATAK,Karnataka (border),16.5000,75.5000,Karnataka,Karnataka,curated
-BHIWANDI,Bhiwandi,19.2813,73.0483,Thane,Maharashtra,curated
-AURANGABAD,Aurangabad,19.8762,75.3433,Aurangabad,Maharashtra,curated
-CHALISGAON,Chalisgaon,20.4600,75.0100,Jalgaon,Maharashtra,curated
-CHINCHWAD,Chinchwad,18.6298,73.7997,Pune,Maharashtra,curated
-CHEMBUR,Chembur,19.0522,72.8994,Mumbai,Maharashtra,curated
+place_key,display_name,lat,lon,taluka,district,state,source
+SHIRUR,Shirur,18.8268,74.3733,Shirur,Pune,Maharashtra,curated
+GHODNADI,Ghodnadi (Shirur),18.8268,74.3733,Shirur,Pune,Maharashtra,curated
+RANJANGAON,Ranjangaon,18.7806,74.2558,Shirur,Pune,Maharashtra,curated
+SARADWADI,Saradwadi,18.7900,74.2800,Shirur,Pune,Maharashtra,curated
+KAREGAON,Karegaon,18.7400,74.3000,Shirur,Pune,Maharashtra,curated
+DHOK SANGAVI,Dhok Sangavi,18.7200,74.2700,Shirur,Pune,Maharashtra,curated
+KONDHAPURI,Kondhapuri,18.7200,74.2000,Shirur,Pune,Maharashtra,curated
+SHIKRAPUR,Shikrapur,18.6986,74.1392,Shirur,Pune,Maharashtra,curated
+TALEGAON DHAMDHERE,Talegaon Dhamdhere,18.6928,74.2017,Shirur,Pune,Maharashtra,curated
+SANASWADI,Sanaswadi,18.6600,74.1000,Shirur,Pune,Maharashtra,curated
+PERANE,Perane Fata,18.6600,74.0800,Shirur,Pune,Maharashtra,curated
+WAGHOLI,Wagholi,18.5800,73.9800,Haveli,Pune,Maharashtra,curated
+PABAL,Pabal,18.8300,74.0800,Shirur,Pune,Maharashtra,curated
+NIGHOJ,Nighoj,19.0500,74.3000,Parner,Ahmednagar,Maharashtra,curated
+PARNER,Parner,19.0023,74.4386,Parner,Ahmednagar,Maharashtra,curated
+SHRIGONDA,Shrigonda,18.6147,74.6997,Shrigonda,Ahmednagar,Maharashtra,curated
+KASTI,Kasti,18.5500,74.6200,Shrigonda,Ahmednagar,Maharashtra,curated
+KEDGAON,Kedgaon,18.6600,74.5500,Ahmednagar,Ahmednagar,Maharashtra,curated
+KOLGOAN,Kolgaon,19.1000,74.6500,Shrigonda,Ahmednagar,Maharashtra,curated
+BELHE,Belhe,19.1833,74.3000,Junnar,Pune,Maharashtra,curated
+DAUND,Daund,18.4647,74.5803,Daund,Pune,Maharashtra,curated
+BARAMATI,Baramati,18.1514,74.5777,Baramati,Pune,Maharashtra,curated
+URULIKANCHAN,Uruli Kanchan,18.4839,74.0539,Haveli,Pune,Maharashtra,curated
+MANCHAR,Manchar,19.0008,73.9400,Ambegaon,Pune,Maharashtra,curated
+MALEGAON,Malegaon (Baramati),18.3500,74.5500,Baramati,Pune,Maharashtra,curated
+VADGAON MAWAL,Vadgaon Maval,18.7400,73.6200,Maval,Pune,Maharashtra,curated
+ANNAPUR,Annapur,18.9000,74.4500,Shirur,Ahmednagar,Maharashtra,curated
+AHMEDNAGAR,Ahmednagar,19.0948,74.7480,Ahmednagar,Ahmednagar,Maharashtra,curated
+PUNE,Pune,18.5204,73.8567,Haveli,Pune,Maharashtra,curated
+CHAKAN,Chakan,18.7606,73.8636,Khed,Pune,Maharashtra,curated
+NASHIK,Nashik,19.9975,73.7898,Nashik,Nashik,Maharashtra,curated
+WASHIM,Washim,20.1110,77.1331,Washim,Washim,Maharashtra,curated
+KARAD,Karad,17.2890,74.1840,Karad,Satara,Maharashtra,curated
+MUMBAI,Mumbai,19.0760,72.8777,Mumbai,Mumbai,Maharashtra,curated
+KARNATAK,Karnataka (border),16.5000,75.5000,Bagalkot,Bagalkot,Karnataka,curated
+BHIWANDI,Bhiwandi,19.2813,73.0483,Bhiwandi,Thane,Maharashtra,curated
+AURANGABAD,Aurangabad,19.8762,75.3433,Aurangabad,Aurangabad,Maharashtra,curated
+CHALISGAON,Chalisgaon,20.4600,75.0100,Chalisgaon,Jalgaon,Maharashtra,curated
+CHINCHWAD,Chinchwad,18.6298,73.7997,Haveli,Pune,Maharashtra,curated
+CHEMBUR,Chembur,19.0522,72.8994,Mumbai,Mumbai,Maharashtra,curated

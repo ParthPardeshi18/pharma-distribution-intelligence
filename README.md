@@ -19,7 +19,8 @@ Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
 - ✅ **Phase 4 — Strategic analyses** (ABC/Pareto, RFM, lifecycle, seasonality, multi-year trends, inventory ageing, profitability ranking, forecasting with confidence intervals)
 - ✅ **Phase 5 — Executive dashboard specifications** (7 Power BI stakeholder specs + star-schema CSV exports, internal + anonymized shareable)
 - ✅ **Phase 6 — Business health report** (.docx executive report — verdict, trends, risks, opportunities, 2×2 recommendations; internal + shareable)
-- ✅ **Phase 6.5 — Geographic Intelligence & Territory Analytics** (route geocoding, distance-band coverage, delivery-day productivity, geographic concentration, maps) *(under review)*
+- ✅ **Phase 6.5 — Geographic Intelligence & Territory Analytics** (route geocoding, distance-band coverage, delivery-day productivity, geographic concentration)
+- ✅ **Phase 6.6 — GIS architecture** (GeoJSON canonical layers: district/taluka/village boundaries, territories, routes, customer/warehouse points; `dim_geo_feature` spatial warehouse table; interactive Leaflet choropleth map; GPS/vehicle-route extension points) *(under review)*
 - ⬜ Phase 7 — Roadmap & AI enhancement plan
 
 ## Architecture (key decisions)

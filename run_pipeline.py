@@ -88,12 +88,17 @@ def main() -> int:
           f"peak month {st['peak_month']}")
     print(f"      {st['md']}")
 
-    # Stage 8 — geographic intelligence (route geocoding, territory, maps)
-    print("[8/10] Generating geographic intelligence (territory, routes, maps) ...")
+    # Stage 8 — geographic intelligence (territory analytics + canonical GIS)
+    print("[8/10] Generating geographic intelligence (territory + GIS GeoJSON) ...")
     from src.geo import run as geo_run
     geo = geo_run.generate()
     print(f"      geo HHI {geo['hhi']:.0f} · {geo['local_share_pct']:.0f}% local · "
-          f"{len(geo['charts'])} maps · {geo['md']}")
+          f"{len(geo['charts'])} charts")
+    from src.geo.gis import run as gis_run
+    gis = gis_run.generate()
+    print(f"      GIS: {sum(gis['layers'].values())} GeoJSON features across "
+          f"{len(gis['layers'])} layers · {gis['features_loaded']} -> dim_geo_feature")
+    print(f"      interactive map: {gis['map']}")
 
     # Stage 9 — Power BI star-schema exports (this mode + always a shareable set)
     print("[9/10] Exporting star-schema CSVs for Power BI ...")
