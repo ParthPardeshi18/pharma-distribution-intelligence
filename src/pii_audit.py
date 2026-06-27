@@ -25,7 +25,7 @@ from src.utils import PROJECT_ROOT, SECURE_DIR
 MOBILE_RE = re.compile(r"(?<!\d)[6-9]\d{9}(?!\d)")
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]{2,}@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
-TEXT_SUFFIXES = {".md", ".csv", ".txt", ".json", ".html", ".svg"}
+TEXT_SUFFIXES = {".md", ".csv", ".txt", ".json", ".geojson", ".html", ".svg"}
 # Binary office docs we also peek into as text
 BINARY_SUFFIXES = {".docx", ".xlsx", ".pptx"}
 

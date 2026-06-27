@@ -1,81 +1,88 @@
-# ERP Business Intelligence & Decision-Support System
+# Pharmaceutical Distribution Intelligence Platform
 
-A production-quality BI and decision-support system for **a mid-size
-pharmaceutical distribution firm in India**, built from ERP exports. One codebase
-produces two outputs: an **internal** decision tool on real data and a
-**shareable**, fully anonymised portfolio version.
+**Version 1.0** · Python 3.11 · 81 automated tests · reconciled to the rupee · PII-safe
 
-> ⚠️ **Real company data with sensitive PII.** Read [SECURITY.md](SECURITY.md)
-> before doing anything. No raw, processed, or warehouse data is ever committed.
+A production-quality decision-support platform that turns raw ERP exports from a
+mid-size pharmaceutical distributor into a **trusted warehouse, decision
+intelligence, strategic analytics, geographic intelligence, Power BI exports, and
+an executive report** — from a single command. One codebase, two modes: an
+**internal** tool on real data and a **shareable**, fully anonymised portfolio
+version.
 
-## Status
+> ⚠️ **Real company data with sensitive PII.** Read [SECURITY.md](SECURITY.md).
+> No raw, processed, or warehouse data is ever committed; shareable outputs are
+> anonymised and pass an automated PII audit.
 
-Built phase by phase (see `ERP_BI_PLAN.md` for the master spec):
+![Architecture](docs/diagrams/architecture_stack.png)
 
-- ✅ **Phase 0 — Discovery, setup & PII protection**
-- ✅ **Phase 1 — Data model & relationship mapping** (ERP Adapter, ERD, star schema)
-- ✅ **Phase 2 — Cleaning, validation & warehouse build**
-- ✅ **Phase 3 — Decision Intelligence layer** (KPIs, insights, risks, opportunities, recommendations, scorecards, Business Health Index)
-- ✅ **Phase 4 — Strategic analyses** (ABC/Pareto, RFM, lifecycle, seasonality, multi-year trends, inventory ageing, profitability ranking, forecasting with confidence intervals)
-- ✅ **Phase 5 — Executive dashboard specifications** (7 Power BI stakeholder specs + star-schema CSV exports, internal + anonymized shareable)
-- ✅ **Phase 6 — Business health report** (.docx executive report — verdict, trends, risks, opportunities, 2×2 recommendations; internal + shareable)
-- ✅ **Phase 6.5 — Geographic Intelligence & Territory Analytics** (route geocoding, distance-band coverage, delivery-day productivity, geographic concentration)
-- ✅ **Phase 6.6 — GIS architecture** (GeoJSON canonical layers: district/taluka/village boundaries, territories, routes, customer/warehouse points; `dim_geo_feature` spatial warehouse table; interactive Leaflet choropleth map; GPS/vehicle-route extension points) *(under review)*
-- ⬜ Phase 7 — Roadmap & AI enhancement plan
+## What it does
 
-## Architecture (key decisions)
+| Layer | Capability |
+|---|---|
+| **ERP Adapter** | One ERP boundary; canonical, ERP-agnostic data (32 report types) |
+| **Warehouse** | SQLite star schema; lineage/audit/quality on every row; **4/4 reconciliations exact, 0 orphan keys** |
+| **Decision Intelligence** | Insights, risks, opportunities, ranked recommendations, scorecards, and a configurable **Business Health Index** |
+| **Strategic Analytics** | ABC/Pareto, RFM, lifecycle, seasonality, trends, ageing, and **forecasting with confidence intervals + model quality + assumptions** |
+| **Geographic Intelligence** | **GeoJSON-canonical GIS** — district/taluka/village boundaries, territories, routes, customer/warehouse points; interactive Leaflet map |
+| **Presentation** | Power BI star-schema CSV + GeoJSON exports; executive Business Health Report (`.docx`) |
 
-- **Raw is immutable.** Exports copied to `data/raw/` (read-only); all cleaning emits new files; every step reconciles totals against raw.
-- **Config over code.** Column mappings, report specs, anonymisation, and currency live in `config/*.yaml`.
-- **PII-first.** Anonymisation (`src/anonymise.py`) + audit (`src/pii_audit.py`) are the foundation.
-- **Star-schema warehouse** in SQLite (`data/warehouse/erp_warehouse.db`).
-- **INR is the source of truth**; a configurable reporting-currency layer converts at presentation time (INR/GBP/EUR/USD …). Analytics are currency-agnostic.
-- **Dual-mode:** `run_pipeline.py --mode {internal|shareable} --currency {INR|…}`.
-
-## Setup
+## Quick start
 
 ```bash
-python -m venv venv
-venv\Scripts\activate          # Windows
+py -3.11 -m venv venv && venv\Scripts\activate     # Windows (see docs/INSTALLATION.md)
 pip install -r requirements.txt
+python run_pipeline.py --mode internal --currency INR     # builds everything (10 stages)
 ```
+No real data? Explore the anonymised **[samples/](samples/)** dataset (CSV + GeoJSON).
 
-## Usage
+## Documentation
 
-```bash
-# Phase 0 — discovery & PII
-python -m src.discovery            # profile raw exports -> docs/discovery_report.md (PII masked)
-python -m src.anonymise --build    # build secure lookup data/secure/pii_lookup.csv
-python -m src.pii_audit --shareable  # gate before sharing
+- **Architecture & vision:** [ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
+  [Platform Vision & Roadmap (.docx)](reports/shareable/Platform_Vision_and_Roadmap_v1.0.docx)
+- **Roadmaps:** [AI_ROADMAP.md](docs/AI_ROADMAP.md) · [GIS_ROADMAP.md](docs/GIS_ROADMAP.md) ·
+  [ERP_EXPANSION.md](docs/ERP_EXPANSION.md) · [SAAS_VISION.md](docs/SAAS_VISION.md) ·
+  [MATURITY_MODEL.md](docs/MATURITY_MODEL.md)
+- **Data model:** [data_model.md](docs/data_model.md) ·
+  [warehouse_schema.md](docs/warehouse_schema.md) ·
+  [data_dictionary.md](docs/data_dictionary.md) ·
+  [business_metadata_catalog.md](docs/business_metadata_catalog.md)
+- **Guides:** [Installation](docs/INSTALLATION.md) · [Deployment](docs/DEPLOYMENT.md) ·
+  [User](docs/USER_GUIDE.md) · [Administrator](docs/ADMINISTRATOR_GUIDE.md) ·
+  [Developer](docs/DEVELOPER_GUIDE.md) · [Maintenance](docs/warehouse_maintenance.md)
+- **Dashboards (Power BI):** [dashboards/specs/](dashboards/specs/) (8 stakeholder specs + data model + DAX + template)
+- **Release:** [RELEASE_NOTES.md](RELEASE_NOTES.md) · [CHANGELOG.md](CHANGELOG.md) ·
+  [Known limitations](docs/KNOWN_LIMITATIONS.md)
 
-# Phase 2-3 — full pipeline: warehouse + validation + stats + DQ dashboard + decision intelligence
-python run_pipeline.py --mode internal  --currency INR
-python run_pipeline.py --mode shareable --currency GBP
+## Key architectural decisions
 
-# Decision intelligence only (reuses the existing warehouse)
-python -m src.di.run        # -> reports/decision_intelligence.md + Business Health Index
-```
-
-**Decision Intelligence** (`src/di/`) turns the warehouse into a system that
-*explains the business and recommends actions*: a central KPI registry
-(`src/di/kpis.py`), reusable engines (insight / root-cause / risk / opportunity /
-recommendation / scorecard), nine domain analyzers, and a configurable
-**Business Health Index** (`config/health_index.yaml`).
-
-Outputs: `data/warehouse/erp_warehouse.db`, `reports/data_validation.md`,
-`reports/warehouse_statistics.md`, `reports/data_quality_dashboard.html`,
-`docs/data_dictionary.md`, `docs/business_metadata_catalog.md`. See
-[docs/warehouse_maintenance.md](docs/warehouse_maintenance.md).
+- **Raw is immutable**; every load reconciles to the ERP's own totals to the rupee.
+- **Config over code** — column maps, report specs, KPI thresholds, currency,
+  health-index weights, churn rules, and geocoding all live in `config/`.
+- **Schema-as-data** — the warehouse schema and KPI registry generate their own docs.
+- **INR is the source of truth**; currency conversion is presentation-only.
+- **GeoJSON is the canonical spatial format**; lat/lon is only a geocoding cache.
+- **PII-first** — anonymisation + audit gate every shareable output.
+- **Future-proofed** — reserved tables for line items, GPS traces, and vehicle
+  routes mean v2.0/v3.0 add layers, never a redesign.
 
 ## Repository layout
 
 ```
-src/        pipeline modules (utils, discovery, anonymise, pii_audit, …)
-config/     YAML config (column_mappings, report_specs, anonymisation, currency)
-data/       raw / processed / warehouse / secure / reference   (ALL gitignored)
-analysis/   per-domain analysis scripts
-reports/    internal (gitignored) + shareable
-dashboards/ internal (gitignored) + shareable  (Power BI specs)
-docs/       discovery report, data model, schema, data dictionary
-tests/      pytest suite
+src/        adapters · warehouse · di · strategic · geo(/gis) · powerbi · report
+config/     YAML config + geo_reference.csv
+data/        raw / warehouse / secure / reference / geo   (gitignored)
+reports/    internal (gitignored) + shareable (anonymised)
+dashboards/ specs/ (Power BI) + geo/ (interactive map, gitignored)
+docs/       architecture, roadmaps, guides, generated dictionary/catalog, diagrams
+samples/    anonymised demo dataset (CSV + GeoJSON)
+tests/      pytest suite (81 tests)
+run_pipeline.py   one-command pipeline (10 stages)
 ```
+
+## Status — v1.0 (a platform, not a finished project)
+
+Phases 0 → 7 complete. See [MATURITY_MODEL.md](docs/MATURITY_MODEL.md) for the
+v2.0 (predictive/AI) and v3.0 (autonomous/multi-tenant SaaS) roadmap.
+
+*Built as a real business system and a portfolio demonstration of data
+engineering, BI, decision intelligence, GIS, and platform architecture.*

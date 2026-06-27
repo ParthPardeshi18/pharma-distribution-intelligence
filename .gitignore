@@ -44,6 +44,8 @@ logs/
 *.csv
 # curated public town coordinates — safe to commit (not data/PII)
 !config/geo_reference.csv
+# anonymised portfolio sample dataset (CSV + GeoJSON) — passes the PII audit
+!samples/**
 *.xlsx
 *.xls
 *.db

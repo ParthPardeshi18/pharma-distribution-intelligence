@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "name": "warehouses", "metadata": {"crs": "WGS84 (EPSG:4326)", "count": 1}, "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [74.3733, 18.8268]}, "properties": {"name": "Shirur", "type": "distribution_warehouse", "district": "Pune"}, "id": "warehouse:base"}]}
