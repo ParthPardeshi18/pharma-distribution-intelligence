@@ -83,22 +83,27 @@ cross-contamination. Every page carries a coloured banner — 🔒 red for inter
 > the shareable reports). If you do not want ₹ figures public either, deploy with
 > a redacted currency layer or omit the financial pages — ask and I'll wire it.
 
-## Sign in
+## Open access + separate staff sign-in
 
-Authentication is on by default. Demo credentials (change before any real
-deployment):
+The app **opens with no login wall** — every visitor lands as a **Guest** in the
+read-only, **anonymised** view (`auth.guest_role: viewer` in config). This is the
+public/LinkedIn default. **Staff sign in separately** from the sidebar
+(🔐 *Staff sign in*) to elevate to real data:
 
-| Username | Password    | Role    | Access |
-|----------|-------------|---------|--------|
-| `admin`   | `admin123`   | admin   | all pages incl. Data Quality · sees real data |
-| `analyst` | `analyst123` | analyst | all analytics + reports · sees real data |
-| `viewer`  | `viewer123`  | viewer  | read-only dashboards · **always anonymised** |
+| Login | Role | Access |
+|-------|------|--------|
+| _(none — default)_ | Guest (viewer) | read-only dashboards · **always anonymised** |
+| `admin` / `admin123` | admin | all pages incl. Data Quality · real data |
+| `analyst` / `analyst123` | analyst | all analytics + reports · real data |
+
+On a public host only the anonymised warehouse exists, so even a staff login sees
+anonymised data there. To require a login for everyone (no guest), set
+`auth.guest_role: ""`; to disable auth entirely on a trusted single-user host, set
+`auth.enabled: false`.
 
 Credentials live in `config/app_users.yaml` (gitignored). Copy
-`config/app_users.example.yaml`, replace the SHA-256 hashes, and override the
-salt via `.streamlit/secrets.toml` (`[auth] salt = "…"`) or the `AUTH_SALT`
-environment variable. To run without auth (trusted single-user host), set
-`auth.enabled: false` in `config/app_config.yaml`.
+`config/app_users.example.yaml`, replace the SHA-256 hashes, and override the salt
+via `.streamlit/secrets.toml` (`[auth] salt = "…"`) or the `AUTH_SALT` env var.
 
 ## Pages
 

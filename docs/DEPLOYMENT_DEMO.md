@@ -59,10 +59,10 @@ To refresh later: `gh release upload demo-data-v1 data/warehouse/erp_warehouse_s
 
 ### 4. Share
 
-Recruiters sign in with the demo credentials shown on the login page:
-- **viewer / viewer123** — always anonymised (recommended link to share)
-- admin / analyst also work, but on the public host only the anonymised warehouse
-  exists, so they see anonymised data too.
+The app **opens with no login** — visitors land straight in the anonymised,
+read-only Guest view. Just share the app URL; recruiters click and explore. (Staff
+can elevate via the sidebar 🔐 *Staff sign in*, but on the public host only the
+anonymised warehouse exists, so they see anonymised data too.)
 
 Put the app URL in your LinkedIn project / README.
 

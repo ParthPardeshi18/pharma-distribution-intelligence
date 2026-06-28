@@ -53,9 +53,22 @@ _SESSION_KEY = "pdi_user"
 
 
 def current_user():  # -> User | None
+    """The signed-in (staff) user, if any."""
     import streamlit as st
 
     return st.session_state.get(_SESSION_KEY)
+
+
+def guest_user():  # -> User | None
+    """Synthetic guest from auth.guest_role, or None if open access is disabled."""
+    role = (config.app_config().get("auth", {}).get("guest_role") or "").strip()
+    if not role:
+        return None
+    return User(username="guest", name="Guest", role=role)
+
+
+def is_guest(user) -> bool:
+    return user is not None and user.username == "guest"
 
 
 def logout() -> None:
@@ -63,13 +76,15 @@ def logout() -> None:
 
     st.session_state.pop(_SESSION_KEY, None)
     st.cache_data.clear()
+    st.cache_resource.clear()
 
 
 def login_gate():  # -> User
-    """Render the login form and block until authenticated. Returns the User.
+    """Resolve the active user without a login wall.
 
-    If auth is disabled in config, returns a synthetic admin so the app is
-    usable in trusted, single-user deployments.
+    Order: signed-in staff → guest (open access) → full-page login (only when no
+    guest role is configured). Staff elevate via the sidebar control instead.
+    If auth is disabled entirely, returns a synthetic admin.
     """
     import streamlit as st
 
@@ -80,15 +95,24 @@ def login_gate():  # -> User
     if user is not None:
         return user
 
+    guest = guest_user()
+    if guest is not None:
+        return guest  # open access — no stop
+
+    # No guest role configured → require a login.
+    return _full_page_login()
+
+
+def _full_page_login():  # -> User (or st.stop)
+    import streamlit as st
+
     cfg = config.app_config().get("app", {})
     st.markdown(f"## {cfg.get('name', 'Platform')} — Sign in")
     st.caption("Pharmaceutical Distribution Intelligence Platform · v1.1")
-
     with st.form("pdi_login", clear_on_submit=False):
         username = st.text_input("Username", autocomplete="username")
         password = st.text_input("Password", type="password", autocomplete="current-password")
         submitted = st.form_submit_button("Sign in", type="primary")
-
     if submitted:
         u = verify(username.strip(), password)
         if u is None:
@@ -96,13 +120,32 @@ def login_gate():  # -> User
         else:
             st.session_state[_SESSION_KEY] = u
             st.rerun()
-
-    with st.expander("Demo credentials"):
-        st.markdown(
-            "- **admin / admin123** — full access\n"
-            "- **analyst / analyst123** — all analytics, no admin pages\n"
-            "- **viewer / viewer123** — read-only dashboards\n\n"
-            "_Change these before any real deployment (see "
-            "`config/app_users.example.yaml`)._"
-        )
     st.stop()
+
+
+def sidebar_login(user) -> None:
+    """Staff sign-in / sign-out control for the sidebar.
+
+    A guest sees a collapsed 'Staff sign in' expander; signed-in staff see a
+    'Sign out' button (returns to the guest experience)."""
+    import streamlit as st
+
+    if is_guest(user):
+        with st.expander("🔐 Staff sign in"):
+            with st.form("pdi_staff_login", clear_on_submit=False):
+                username = st.text_input("Username", autocomplete="username")
+                password = st.text_input("Password", type="password",
+                                         autocomplete="current-password")
+                submitted = st.form_submit_button("Sign in", type="primary")
+            if submitted:
+                u = verify(username.strip(), password)
+                if u is None:
+                    st.error("Invalid username or password.")
+                else:
+                    st.session_state[_SESSION_KEY] = u
+                    st.cache_data.clear()
+                    st.rerun()
+    else:
+        if st.button("Sign out", width="stretch"):
+            logout()
+            st.rerun()

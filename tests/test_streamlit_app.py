@@ -134,47 +134,39 @@ def _app():
     return AppTest.from_file(str(PROJECT_ROOT / "streamlit_app.py"))
 
 
-def test_unauthenticated_shows_login_gate():
-    at = _app().run(timeout=60)
-    assert not at.exception
-    # Login form fields present; no page content rendered yet.
-    assert len(at.text_input) >= 2
-    joined = " ".join(m.value for m in at.markdown)
-    assert "Sign in" in joined
-
-
-def test_invalid_login_shows_error():
-    at = _app().run(timeout=60)
-    at.text_input[0].set_value("admin").run(timeout=60)
-    at.text_input[1].set_value("wrongpass")
-    at.button[0].click().run(timeout=60)
-    assert not at.exception
-    assert any("Invalid" in e.value for e in at.error)
+# Guest / open-access defaults (no login wall)
+def test_guest_user_is_viewer():
+    g = auth.guest_user()
+    assert g is not None and g.role == "viewer"
+    assert auth.is_guest(g)
+    assert not auth.is_guest(auth.User("alice", "Alice", "admin"))
 
 
 @pytest.mark.slow
-def test_admin_login_renders_overview():
-    at = _app().run(timeout=120)
+@pytest.mark.skipif(not _shareable_db_available(), reason="shareable warehouse not built")
+def test_app_opens_as_anonymised_guest_without_login():
+    """No login wall: the app opens straight into the anonymised guest view."""
+    at = _app().run(timeout=300)
+    assert not at.exception
+    # No staff user signed in, but the app rendered (guest), pinned to shareable.
+    assert "pdi_user" not in at.session_state
+    assert "pdi_opts" in at.session_state
+    assert at.session_state["pdi_opts"]["mode"] == "shareable"
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not _shareable_db_available(), reason="shareable warehouse not built")
+def test_staff_can_sign_in_as_admin_from_sidebar():
+    """Staff elevate from the sidebar login; admin then gets real-data mode."""
+    at = _app().run(timeout=300)
+    # Sidebar staff-login form is the first text-input pair.
     at.text_input[0].set_value("admin")
     at.text_input[1].set_value("admin123")
     at.button[0].click().run(timeout=300)
     assert not at.exception
     assert "pdi_user" in at.session_state
-    user = at.session_state["pdi_user"]
-    assert user is not None and user.role == "admin"
-
-
-@pytest.mark.slow
-@pytest.mark.skipif(not _shareable_db_available(), reason="shareable warehouse not built")
-def test_viewer_login_is_pinned_to_shareable():
-    """End-to-end: a viewer session resolves to anonymised data."""
-    at = _app().run(timeout=120)
-    at.text_input[0].set_value("viewer")
-    at.text_input[1].set_value("viewer123")
-    at.button[0].click().run(timeout=300)
-    assert not at.exception
-    assert "pdi_opts" in at.session_state
-    assert at.session_state["pdi_opts"]["mode"] == "shareable"
+    assert at.session_state["pdi_user"].role == "admin"
+    assert at.session_state["pdi_opts"]["mode"] == "internal"
 
 
 # Render each page in isolation against the real warehouse to catch view-level

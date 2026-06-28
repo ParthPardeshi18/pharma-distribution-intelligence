@@ -46,6 +46,8 @@ def ensure_demo_data(mode: str) -> None:
     No-op unless: mode is ``shareable``, the warehouse file is missing, and a demo
     URL is configured. Shows a one-time spinner; on failure shows a clear message
     and stops (never falls back to real data — there is none on a public host)."""
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return  # never reach out to the network during tests
     if mode != "shareable" or data.warehouse_exists():
         return
     url = _demo_url()

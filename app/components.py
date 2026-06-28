@@ -121,11 +121,18 @@ def sidebar_filters(user, mode: str = "internal") -> dict:
     return the selected presentation options."""
     from app import config, data
 
+    from app import auth
+
     cfg = config.app_config()
     with st.sidebar:
         st.markdown(f"#### {cfg.get('app', {}).get('short_name', 'PDI')}")
-        st.caption(f"v{cfg.get('app', {}).get('version', '1.1.0')} · signed in as "
-                   f"**{user.name}** ({user.role})")
+        if auth.is_guest(user):
+            st.caption(f"v{cfg.get('app', {}).get('version', '1.1.0')} · "
+                       "**Guest** · anonymised demo view")
+        else:
+            st.caption(f"v{cfg.get('app', {}).get('version', '1.1.0')} · signed in as "
+                       f"**{user.name}** ({user.role})")
+        auth.sidebar_login(user)
 
         # ── Data mode ────────────────────────────────────────────────────────
         if mode == "shareable":
@@ -186,10 +193,6 @@ def sidebar_filters(user, mode: str = "internal") -> dict:
         if st.button("↻ Refresh data", width="stretch",
                      help="Clear caches and re-read the warehouse."):
             st.cache_data.clear()
-            st.rerun()
-        if st.button("Sign out", width="stretch"):
-            from app import auth
-            auth.logout()
             st.rerun()
 
     return {"currency": currency, "profile": profile, "fy": fy, "mode": mode}
